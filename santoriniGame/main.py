@@ -25,9 +25,16 @@ def main():
         clock.tick(FPS)
 
         # Check if the game is over
-        if game.game_over:
+        if game.game_over != None:
+            """    
             run = False  # Exit the game loop if the game is over
-            continue
+            continue #this if statement could be tweaked to reset the game instead
+
+            """
+            game.game_over = None
+            game.reset()
+            game.update()
+
 
         # Check for user events like quitting or clicking
         for event in pygame.event.get():

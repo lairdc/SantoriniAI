@@ -6,7 +6,7 @@ class Game:
     def __init__(self, win):
         self._init()
         self.win = win
-        self.game_over = False  # Add a game-over state
+        self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
 
     def update(self):
         self.board.draw(self.win, self.valid_moves)
@@ -18,6 +18,7 @@ class Game:
         self.turn = BLUE
         self.valid_moves = {}
         self.move = True  # Start in move phase
+        self.game_over = None  # Reset game_over state on initialization
 
     def reset(self):
         self._init()
@@ -37,12 +38,7 @@ class Game:
             else:  # Build phase
                 if (row, col) in self.valid_moves:
                     self._build(row, col)
-                    return True
-                else:
-                    # Deselect after invalid build attempt
-                    self.selected = None
-                    self.valid_moves = {}
-
+                return True
         else:
             # Select a piece belonging to the current turn
             if piece is not None and piece.color == self.turn:
@@ -67,7 +63,7 @@ class Game:
             # Check if the piece moved onto a level 3 tile
             if self.board.tile_levels[row][col] == 3:
                 self.display_winner(self.turn)  # Display winning message
-                self.game_over = True  # Set the game over state
+                self.game_over = 'BLUE' if self.turn == BLUE else 'RED'  # Set game_over to winning color
                 return True
 
             self.valid_moves = self.board.get_valid_builds(self.selected)  # Set up for building after moving
@@ -83,7 +79,7 @@ class Game:
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(3000)  # Display the message for 3 seconds
+        pygame.time.delay(1000)  # Display the message for 3 seconds
 
     def change_turn(self):
         self.turn = RED if self.turn == BLUE else BLUE
