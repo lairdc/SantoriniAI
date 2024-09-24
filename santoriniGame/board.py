@@ -1,4 +1,5 @@
 import pygame
+
 from .constants import *
 from .pieces import Piece
 

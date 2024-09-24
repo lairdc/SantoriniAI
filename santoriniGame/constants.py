@@ -1,5 +1,3 @@
-import pygame
-
 WIDTH, HEIGHT = 800,800
 
 ROWS, COLS = 5,5
