@@ -8,6 +8,13 @@
 4. Create a new folder for your project. 
 5. In terminal, change directory(cd) to the new folder and type the following: -git clone https://github.com/lairdc/SantoriniAI.git
 
+## Running the game
+1. **Download Python**: Download here: https://www.python.org/downloads/
+2. **Download pygame**: Download here: https://www.pygame.org/wiki/GettingStarted
+3. Run through your IDE, or on command line:
+```
+python3 -m santoriniGame.main
+```
 
 ## Overview
 SantoriniAI aims to create a website where users can play the board game Santorini against a friend locally or against some of our trained AI’s. Our team aims to learn the basics of various AI algorithms that allow computers to play games intelligently. This includes the Minimax algorithm with alpha-beta pruning, Monte Carlo Tree Search and possibly Deep-Q Network. Each bot will be available to challenge and play against on our website. More info can be found on the game here: https://en.wikipedia.org/wiki/Santorini_(game) 
