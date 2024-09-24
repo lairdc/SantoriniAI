@@ -9,7 +9,6 @@ class Game:
         self._init()
         self.win = win
         self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
-        self.turn = None
 
     def update(self):
         self.board.draw(self.win, self.valid_moves)
