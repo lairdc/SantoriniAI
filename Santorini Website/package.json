@@ -1,0 +1,11 @@
+{
+  "name": "santorini-ai",
+  "version": "1.0.0",
+  "description": "AI Santorini board game",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AshleyL119",
+  "license": "ISC"
+}
