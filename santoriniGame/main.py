@@ -1,6 +1,6 @@
 import pygame
+
 from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE
-from santoriniGame.board import Board
 from santoriniGame.game import Game
 
 FPS = 60
@@ -8,7 +8,7 @@ FPS = 60
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
 
-def get_row_col_from_mouse(pos):
+def get_row_col_from_mouse(pos: tuple[int, int]):
     x, y = pos
     row = y // SQUARE_SIZE
     col = x // SQUARE_SIZE

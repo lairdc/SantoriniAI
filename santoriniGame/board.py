@@ -1,4 +1,5 @@
 import pygame
+
 from .constants import *
 from .pieces import Piece
 
@@ -11,7 +12,7 @@ class Board:
         self.create_board()
         self.font = pygame.font.SysFont(None, 36)  # Font for displaying tile levels
 
-    def draw(self, win, valid_moves=None):
+    def draw(self, win: pygame.SurfaceType, valid_moves=None):
         win.fill(GREEN)
 
         # Draw the grid
@@ -30,7 +31,7 @@ class Board:
 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:
-                    pygame.draw.circle(win, HIGHLIGHT_COLOR, 
+                    pygame.draw.circle(win, HIGHLIGHT_COLOR,
                                        (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2), 10)
 
         # Draw the pieces
@@ -38,7 +39,7 @@ class Board:
             piece.draw(win)
 
 
-    def move(self, piece, row, col):
+    def move(self, piece: Piece, row: int, col: int):
         # Update piece location and level
         if piece in self.board:
             self.board.remove(piece)
@@ -46,7 +47,7 @@ class Board:
             piece.move(row, col, new_level)
             self.board.append(piece)
 
-    def get_piece(self, row, col):
+    def get_piece(self, row: int, col: int) -> Piece | None :
         # Check if a piece exists at the given row and col
         for piece in self.board:
             if piece.row == row and piece.col == col:
@@ -62,7 +63,7 @@ class Board:
         self.board.append(Piece(ROWS - 2, 1, RED))  # Bottom-left corner
         self.board.append(Piece(ROWS - 2, COLS - 2, RED))  # Bottom-right corner
 
-    def get_valid_moves(self, piece):
+    def get_valid_moves(self, piece: Piece):
         moves = {}
         directions = [
             (-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
@@ -85,7 +86,7 @@ class Board:
 
         return moves
 
-    def get_valid_builds(self,piece):
+    def get_valid_builds(self, piece: Piece):
 
         builds = {}
         directions = [
