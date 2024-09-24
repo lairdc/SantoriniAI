@@ -1,14 +1,14 @@
 import pygame
-from santorini.constants import WIDTH, HEIGHT, SQUARE_SIZE
-from santorini.board import Board
-from santorini.game import Game
+
+from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE
+from santoriniGame.game import Game
 
 FPS = 60
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
 
-def get_row_col_from_mouse(pos):
+def get_row_col_from_mouse(pos: tuple[int, int]):
     x, y = pos
     row = y // SQUARE_SIZE
     col = x // SQUARE_SIZE
@@ -25,9 +25,16 @@ def main():
         clock.tick(FPS)
 
         # Check if the game is over
-        if game.game_over:
+        if game.game_over != None:
+            """    
             run = False  # Exit the game loop if the game is over
-            continue
+            continue #this if statement could be tweaked to reset the game instead
+
+            """
+            game.game_over = None
+            game.reset()
+            game.update()
+
 
         # Check for user events like quitting or clicking
         for event in pygame.event.get():
