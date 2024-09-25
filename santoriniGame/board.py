@@ -4,7 +4,7 @@ from .constants import *
 from .pieces import Piece
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
-
+#test
 class Board:
     def __init__(self):
         self.board = []  # 1-D list of pieces
