@@ -23,12 +23,13 @@ class Board:
                 y = row * SQUARE_SIZE
 
                 # Draw the square border
-                pygame.draw.rect(win, GREY, (x, y, SQUARE_SIZE, SQUARE_SIZE), 2)
+                pygame.draw.rect (win, GREY, (x, y, SQUARE_SIZE, SQUARE_SIZE), 2)
 
                 # Draw the level number on each tile
                 level_text = self.font.render(str(self.tile_levels[row][col]), True, (0, 0, 0))
                 win.blit(level_text, (x + 5, y + 5))  # Position the text in the top left of each tile
-
+                if self.tile_levels[row][col] >= 1:
+                    pygame.draw.rect() 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:
                     pygame.draw.circle(win, HIGHLIGHT_COLOR,
