@@ -1,6 +1,5 @@
 import pygame
-from constants import *
-from board import Board
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from game import Game
 from bot import Bot
 
@@ -9,13 +8,11 @@ FPS = 60
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
 
-
-def get_row_col_from_mouse(pos):
+def get_row_col_from_mouse(pos: tuple[int, int]):
     x, y = pos
     row = y // SQUARE_SIZE
     col = x // SQUARE_SIZE
     return row, col
-
 
 def draw_menu(win, buttons):
     win.fill(GREEN)
@@ -29,7 +26,6 @@ def draw_menu(win, buttons):
         win.blit(text, text_rect)
 
     pygame.display.update()
-
 
 def choose_game_mode():
     """Displays the menu and waits for the user to select a game mode."""
@@ -78,7 +74,6 @@ def choose_game_mode():
 
     pygame.quit()
 
-
 def main():
     pygame.init()
 
@@ -101,7 +96,7 @@ def main():
         clock.tick(FPS)
 
         # Check if the game is over
-        if game.game_over != None:
+        if game.game_over is not None:
             game.game_over = None
             game.reset()
             game.update()
@@ -126,7 +121,6 @@ def main():
         game.update()
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()  # Call the main function to start the game
