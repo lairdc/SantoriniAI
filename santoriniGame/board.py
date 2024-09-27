@@ -44,8 +44,6 @@ class Board:
                 if self.tile_levels[row][col] >= 4:
                     pygame.draw.circle(win, BLUE, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
                                        SQUARE_SIZE // 3)
-                    pygame.draw.circle(win, BLACK, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
-                                       SQUARE_SIZE // 3, width=SQUARE_SIZE//40)
 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:
