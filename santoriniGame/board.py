@@ -1,6 +1,6 @@
 import pygame
-from .constants import *
-from .pieces import Piece
+from constants import *
+from pieces import Piece
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
 
@@ -85,8 +85,7 @@ class Board:
 
         return moves
 
-    def get_valid_builds(self,piece):
-
+    def get_valid_builds(self, piece):
         builds = {}
         directions = [
             (-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
@@ -108,3 +107,13 @@ class Board:
                         builds[(new_row, new_col)] = target_level
 
         return builds
+
+    def get_all_pieces(self, color):
+        pieces = []
+        for piece in self.board:
+            if piece is not None and piece.color == color:
+                pieces.append(piece)
+        return pieces
+
+    def get_tile_levels(self):
+        return self.tile_levels
