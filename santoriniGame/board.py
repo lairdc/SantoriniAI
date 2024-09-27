@@ -25,9 +25,27 @@ class Board:
                 # Draw the square border
                 pygame.draw.rect(win, GREY, (x, y, SQUARE_SIZE, SQUARE_SIZE), 2)
 
-                # Draw the level number on each tile
-                level_text = self.font.render(str(self.tile_levels[row][col]), True, (0, 0, 0))
-                win.blit(level_text, (x + 5, y + 5))  # Position the text in the top left of each tile
+                if self.tile_levels[row][col] >= 1:
+                    pygame.draw.rect(win, WHITE, (x + SQUARE_SIZE // 20, y + SQUARE_SIZE // 20,
+                                                  18 * SQUARE_SIZE // 20, 18 * SQUARE_SIZE // 20))
+                    pygame.draw.rect(win, BLACK, (x + SQUARE_SIZE // 20, y + SQUARE_SIZE // 20,
+                                                  18 * SQUARE_SIZE // 20, 18 * SQUARE_SIZE // 20), width=SQUARE_SIZE//40)
+                if self.tile_levels[row][col] >= 2:
+                    pygame.draw.rect(win, WHITE, (x + SQUARE_SIZE // 10, y + SQUARE_SIZE // 10,
+                                                  8 * SQUARE_SIZE // 10, 8 * SQUARE_SIZE // 10))
+                    pygame.draw.rect(win, BLACK, (x + SQUARE_SIZE // 10, y + SQUARE_SIZE // 10,
+                                                  8 * SQUARE_SIZE // 10, 8 * SQUARE_SIZE // 10),
+                                     width=SQUARE_SIZE // 40)
+                if self.tile_levels[row][col] >= 3:
+                    pygame.draw.circle(win, WHITE, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
+                                       SQUARE_SIZE // 3)
+                    pygame.draw.circle(win, BLACK, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
+                                       SQUARE_SIZE // 3, width=SQUARE_SIZE//40)
+                if self.tile_levels[row][col] >= 4:
+                    pygame.draw.circle(win, BLUE, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
+                                       SQUARE_SIZE // 3)
+                    pygame.draw.circle(win, BLACK, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2),
+                                       SQUARE_SIZE // 3, width=SQUARE_SIZE//40)
 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:

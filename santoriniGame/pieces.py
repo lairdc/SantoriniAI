@@ -21,8 +21,11 @@ class Piece:
 		self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 
 	def draw(self, win: pygame.SurfaceType):
-		radius = SQUARE_SIZE//2 - self.PADDING
+		radius = SQUARE_SIZE // 4 - self.PADDING
+		width = SQUARE_SIZE // 40
 		pygame.draw.circle(win, self.color, (self.x, self.y), radius)
+		pygame.draw.circle(win, BLACK, (self.x, self.y), radius, width)
+
 
 	def move(self, row: int, col: int, level: int):
 		self.row = row
