@@ -15,7 +15,33 @@
 ```
 python3 -m santoriniGame.main
 ```
+## How to Access the SantoriniAI Website
+1. Download Node.js from https://nodejs.org/
+2. Navigate to the project directory:
+```
+cd SantoriniAI/Santorini\ Website
+```
+3. Install NPM(Node Package Manager) for the frontend(client) and backend(server)
+```
+cd server
+npm install
+```
 
+```
+cd ../client
+npm install
+```
+3. Run the development server for backend:
+```
+cd ../server
+npm start
+```
+4. And also for the frontend. In a new terminal window:
+```
+cd ../client
+npm start
+```
+5. This should open the website in your web browser. On your terminal, click Ctrl + C and press Y to go back to the command prompt.
 ## Overview
 SantoriniAI aims to create a website where users can play the board game Santorini against a friend locally or against some of our trained AI’s. Our team aims to learn the basics of various AI algorithms that allow computers to play games intelligently. This includes the Minimax algorithm with alpha-beta pruning, Monte Carlo Tree Search and possibly Deep-Q Network. Each bot will be available to challenge and play against on our website. More info can be found on the game here: https://en.wikipedia.org/wiki/Santorini_(game) 
 
