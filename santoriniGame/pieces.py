@@ -1,6 +1,6 @@
 import pygame
 
-from .constants import *
+from constants import *
 
 class Piece:
 	PADDING = 15

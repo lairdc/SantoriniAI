@@ -1,7 +1,7 @@
 import pygame
 
-from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE
-from santoriniGame.game import Game
+from constants import WIDTH, HEIGHT, SQUARE_SIZE
+from game import Game
 
 FPS = 60
 
