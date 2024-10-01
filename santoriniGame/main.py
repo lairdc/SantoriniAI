@@ -1,7 +1,8 @@
 import pygame
-from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from game import Game
-from bot import Bot
+
+from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from santoriniGame.game import Game
+from santoriniGame.bot import Bot
 
 FPS = 60
 
@@ -14,6 +15,7 @@ def get_row_col_from_mouse(pos: tuple[int, int]):
     col = x // SQUARE_SIZE
     return row, col
 
+    
 def draw_menu(win, buttons):
     win.fill(GREEN)
     
@@ -73,6 +75,7 @@ def choose_game_mode():
                         return button["action"]  # Return the action associated with the clicked button
 
     pygame.quit()
+
 
 def main():
     pygame.init()

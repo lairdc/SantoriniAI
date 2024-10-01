@@ -1,6 +1,8 @@
 import pygame
-from board import Board
-from constants import *
+
+from .board import Board
+from .constants import *
+
 
 class Game:
     def __init__(self, win: pygame.SurfaceType):
