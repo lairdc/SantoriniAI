@@ -1,117 +1,176 @@
 import pygame
-
-from .constants import *
-from .pieces import Piece
-
-HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
-
-class Board:
-    def __init__(self):
-        self.board = []  # 1-D list of pieces
-        self.tile_levels = [[0 for _ in range(COLS)] for _ in range(ROWS)]  # Track tile levels
-        self.create_board()
-        self.font = pygame.font.SysFont(None, 36)  # Font for displaying tile levels
-
-    def draw(self, win: pygame.SurfaceType, valid_moves=None):
-        win.fill(GREEN)
-
-        # Draw the grid
-        for row in range(ROWS):
-            for col in range(COLS):
-                # Calculate the position for each square
-                x = col * SQUARE_SIZE
-                y = row * SQUARE_SIZE
-
-                # Draw the square border
-                pygame.draw.rect(win, GREY, (x, y, SQUARE_SIZE, SQUARE_SIZE), 2)
-
-                #Draw blocks
-                if self.tile_levels[row][col] >= 1:
-                    pygame.draw.rect(win, GREY, (x+(BUFFER/2),y+(BUFFER/2),SQUARE_SIZE-BUFFER,SQUARE_SIZE-BUFFER))
-                if self.tile_levels[row][col] >= 2:
-                    pygame.draw.rect(win, LIGHT_GREY,(x + (BUFFER), y + (BUFFER), SQUARE_SIZE - (2 * BUFFER), SQUARE_SIZE - (2 * BUFFER)))
-                if self.tile_levels[row][col] >= 3:
-                    pygame.draw.rect(win, WHITE, (x + (1.5 * BUFFER), y + (1.5 * BUFFER), SQUARE_SIZE - (3 * BUFFER), SQUARE_SIZE - (3 * BUFFER)))
-                if self.tile_levels[row][col] == 4:
-                    pygame.draw.circle(win, LIGHT_BLUE,(x + SQUARE_SIZE//2, y + SQUARE_SIZE//2), PIECE_SIZE)
-
-                # Highlight valid moves
-                if valid_moves and (row, col) in valid_moves:
-                    pygame.draw.circle(win, HIGHLIGHT_COLOR,
-                                       (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2), 10)
-
-        # Draw the pieces
-        for piece in self.board:
-            piece.draw(win)
+import numpy as np
+from deepQ.agent import DQNAgent
+from deepQ.board import Board
+from deepQ.constants import *
 
 
-    def move(self, piece: Piece, row: int, col: int):
-        # Update piece location and level
-        if piece in self.board:
-            self.board.remove(piece)
-            new_level = self.tile_levels[row][col]
-            piece.move(row, col, new_level)
-            self.board.append(piece)
+class Game:
+    def __init__(self, win: pygame.SurfaceType):
+        self._init()
+        self.win = win
+        self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
 
-    def get_piece(self, row: int, col: int) -> Piece | None :
-        # Check if a piece exists at the given row and col
-        for piece in self.board:
-            if piece.row == row and piece.col == col:
-                return piece
-        return None
+    def update(self):
+        self.board.draw(self.win, self.valid_moves)
+        pygame.display.update()
 
-    def create_board(self):
-        # Create blue pieces in the corners
-        self.board.append(Piece(1, 1, BLUE))  # Top-left corner
-        self.board.append(Piece(1, COLS - 2, BLUE))  # Top-right corner
+    def _init(self):
+        self.selected = None
+        self.board = Board()
+        self.turn = BLUE
+        self.valid_moves = {}
+        self.move = True  # Start in move phase
+        self.game_over = None  # Reset game_over state on initialization
 
-        # Create red pieces in the corners
-        self.board.append(Piece(ROWS - 2, 1, RED))  # Bottom-left corner
-        self.board.append(Piece(ROWS - 2, COLS - 2, RED))  # Bottom-right corner
+    def reset(self):
+        self._init()
 
-    def get_valid_moves(self, piece: Piece):
-        moves = {}
-        directions = [
-            (-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
-            (0, -1),         (0, 1),     # Left,         , right
-            (1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
-        ]
+    def select(self, row: int, col: int):
+        piece = self.board.get_piece(row, col)
 
-        for direction in directions:
-            new_row = piece.row + direction[0]
-            new_col = piece.col + direction[1]
+        if self.selected:
+            if self.move:  # Move phase
+                if (row, col) in self.valid_moves:
+                    self._move(row, col)
+                    return True
+                else:
+                    # Deselect the piece if the move is invalid
+                    self.selected = None
+                    self.valid_moves = {}
+            else:  # Build phase
+                if (row, col) in self.valid_moves:
+                    self._build(row, col)
+                return True
+        else:
+            # Select a piece belonging to the current turn
+            if piece is not None and piece.color == self.turn:
+                self.selected = piece
+                self.valid_moves = self.board.get_valid_moves(piece)
+                return True
 
-            if 0 <= new_row < ROWS and 0 <= new_col < COLS:
-                target_level = self.tile_levels[new_row][new_col]
+        return False
 
-                # Ensure the target level is climbable and does not have a dome
-                if target_level < 4 and (target_level - self.tile_levels[piece.row][piece.col] <= 1):
-                    # Check if there is already a piece at the target location
-                    if not self.get_piece(new_row, new_col):
-                        moves[(new_row, new_col)] = target_level
+    def _build(self, row, col):
+        self.board.tile_levels[row][col] += 1
+        self.valid_moves = {}
+        self.move = True  # Reset to move phase
+        self.change_turn()  # Change turn after building
+        self.selected = None  # Deselect after building
 
-        return moves
+    def _move(self, row: int, col: int):
+        if self.selected and (row, col) in self.valid_moves:
+            self.board.move(self.selected, row, col)
 
-    def get_valid_builds(self, piece: Piece):
+            # Check if the piece moved onto a level 3 tile
+            if self.board.tile_levels[row][col] == 3:
+                self.display_winner(self.turn)  # Display winning message
+                self.game_over = 'BLUE' if self.turn == BLUE else 'RED'  # Set game_over to winning color
+                return True
 
-        builds = {}
-        directions = [
-            (-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
-            (0, -1),         (0, 1),     # Left,         , right
-            (1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
-        ]
+            self.valid_moves = self.board.get_valid_builds(self.selected)  # Set up for building after moving
+            self.move = False  # Switch to build phase
+            return True
+        return False
 
-        for direction in directions:
-            new_row = piece.row + direction[0]
-            new_col = piece.col + direction[1]
+    def display_winner(self, winner_color: tuple[int, int, int]):
+        font = pygame.font.SysFont(None, 72)
+        win_text = f"{'Blue' if winner_color == BLUE else 'Red'} Wins!"
+        text = font.render(win_text, True, (255, 255, 255))  # White text
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        self.win.blit(text, text_rect)
+        pygame.display.update()
+        pygame.time.delay(1000)  # Display the message for 1 second
 
-            if 0 <= new_row < ROWS and 0 <= new_col < COLS:
-                target_level = self.tile_levels[new_row][new_col]
+    def change_turn(self):
+        self.turn = RED if self.turn == BLUE else BLUE
 
-                # Ensure the target level is climbable and does not have a dome
-                if target_level < 4:
-                    # Check if there is already a piece at the target location
-                    if not self.get_piece(new_row, new_col):
-                        builds[(new_row, new_col)] = target_level
 
-        return builds
+def extract_state(board):
+    """Convert the board state to a numpy array for the agent."""
+    state = []
+    for row in range(ROWS):
+        for col in range(COLS):
+            piece = board.get_piece(row, col)
+            # Encode pieces by color and tile levels
+            if piece is None:
+                state.append(0)  # No piece
+            elif piece.color == BLUE:
+                state.append(1)  # Blue piece
+            else:
+                state.append(2)  # Red piece
+
+            # Append the tile level as a feature
+            state.append(board.tile_levels[row][col])
+    return np.array(state)
+
+
+def run_game():
+    pygame.init()
+    win = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption('Deep Q-Learning AI Game')
+    game = Game(win)
+
+    # Agent setup
+    state_size = ROWS * COLS * 2  # Each cell has two values: piece presence and level
+    action_size = ROWS * COLS  # Represent each square as an action
+    agent = DQNAgent(state_size, action_size)
+
+    running = True
+    clock = pygame.time.Clock()
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Convert the current board state to a numpy array for the agent
+        state = extract_state(game.board)
+
+        # Agent chooses an action
+        action = agent.act(state)
+
+        # Map action to row and col
+        row = action // COLS
+        col = action % COLS
+
+        # Select the piece or build
+        if game.move:
+            if game.select(row, col):
+                reward = 1  # Reward for a valid move
+            else:
+                reward = -1  # Penalty for an invalid move
+        else:
+            if game.select(row, col):
+                reward = 1  # Reward for a valid build
+            else:
+                reward = -1  # Penalty for an invalid build
+
+        # Get the next state after the move/build
+        next_state = extract_state(game.board)
+
+        # Check if the game is over
+        if game.game_over:
+            reward = 10  # High reward for winning
+            running = False
+
+        # Store the experience in memory
+        agent.remember(state, action, reward, next_state, game.game_over)
+
+        # Update the game display
+        game.update()
+
+        # Train the agent with replay
+        agent.replay()
+
+        # Update target model weights periodically
+        agent.update_target_model()
+
+        # Cap the frame rate
+        clock.tick(30)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    run_game()
