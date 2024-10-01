@@ -115,3 +115,13 @@ class Board:
                         builds[(new_row, new_col)] = target_level
 
         return builds
+
+    def get_all_pieces(self, color):
+        pieces = []
+        for piece in self.board:
+            if piece is not None and piece.color == color:
+                pieces.append(piece)
+        return pieces
+
+    def get_tile_levels(self):
+        return self.tile_levels
