@@ -1,9 +1,11 @@
 import pygame
-from .constants import *
+
 from .board import Board
+from .constants import *
+
 
 class Game:
-    def __init__(self, win):
+    def __init__(self, win: pygame.SurfaceType):
         self._init()
         self.win = win
         self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
@@ -23,7 +25,7 @@ class Game:
     def reset(self):
         self._init()
 
-    def select(self, row, col):
+    def select(self, row: int, col: int):
         piece = self.board.get_piece(row, col)
 
         if self.selected:
@@ -56,7 +58,7 @@ class Game:
         self.change_turn()  # Change turn after building
         self.selected = None  # Deselect after building
 
-    def _move(self, row, col):
+    def _move(self, row: int, col: int):
         if self.selected and (row, col) in self.valid_moves:
             self.board.move(self.selected, row, col)
 
@@ -72,7 +74,7 @@ class Game:
             return True
         return False
 
-    def display_winner(self, winner_color):
+    def display_winner(self, winner_color: tuple[int, int, int]):
         font = pygame.font.SysFont(None, 72)
         win_text = f"{'Blue' if winner_color == BLUE else 'Red'} Wins!"
         text = font.render(win_text, True, (255, 255, 255))  # White text
