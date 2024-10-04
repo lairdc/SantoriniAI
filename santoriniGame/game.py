@@ -1,7 +1,7 @@
 import pygame
 
-from .board import Board
-from .constants import *
+from board import Board
+from constants import *
 
 
 class Game:
@@ -75,14 +75,31 @@ class Game:
         return False
 
     def display_winner(self, winner_color: tuple[int, int, int]):
+        self.valid_moves = None
+        self.update()
         font = pygame.font.SysFont(None, 72)
         win_text = f"{'Blue' if winner_color == BLUE else 'Red'} Wins!"
         text = font.render(win_text, True, (255, 255, 255))  # White text
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(1000)  # Display the message for 3 seconds
+        pygame.time.delay(5000)  # Display the message for 3 seconds
 
     def change_turn(self):
         self.turn = RED if self.turn == BLUE else BLUE
         print(f"Turn changed to {'Red' if self.turn == RED else 'Blue'}")  # Debugging output
+        
+        # Check if the new turn player has valid moves
+        if not self.has_valid_moves(self.turn):
+            opponent_color = RED if self.turn == BLUE else BLUE
+            self.display_winner(opponent_color)  # Display winner message for the opponent
+            self.game_over = opponent_color  # Set game_over to winning color
+            print(f"{'Red' if opponent_color == RED else 'Blue'} wins by default! No valid moves for {self.turn}.")
+    
+    def has_valid_moves(self, color):
+        """Check if the player with the specified color has any valid moves."""
+        pieces = self.board.get_all_pieces(color)  # Get all pieces of the current player
+        for piece in pieces:
+            if self.board.get_valid_moves(piece):
+                return True  # Found a piece with valid moves or builds
+        return False  # No valid moves found for any pieces
