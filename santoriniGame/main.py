@@ -1,7 +1,8 @@
 import pygame
 
-from constants import WIDTH, HEIGHT, SQUARE_SIZE
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, BLUE, GREEN, GREY
 from game import Game
+from bot import Bot
 
 FPS = 60
 
