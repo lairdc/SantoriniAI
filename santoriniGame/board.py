@@ -123,5 +123,5 @@ class Board:
                 pieces.append(piece)
         return pieces
 
-    def get_tile_levels(self):
-        return self.tile_levels
+    def get_tile_level(self, row, col):
+        return self.tile_levels[row][col]

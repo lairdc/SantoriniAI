@@ -3,6 +3,7 @@ import pygame
 from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from santoriniGame.game import Game
 from santoriniGame.bot import Bot
+from santoriniGame.ColbysMiniMax import ColbysMiniMax
 
 FPS = 60
 
@@ -15,7 +16,6 @@ def get_row_col_from_mouse(pos: tuple[int, int]):
     col = x // SQUARE_SIZE
     return row, col
 
-    
 def draw_menu(win, buttons):
     win.fill(GREEN)
     
@@ -40,22 +40,28 @@ def choose_game_mode():
     button_width, button_height = 400, 100
     buttons = [
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 4 - button_height // 2, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 4 - button_height, button_width, button_height),
             "color": BLUE,
             "text": "Play as Blue vs Red Bot",
-            "action": (BLUE, RED)  # Player is Blue, Bot is Red
+            "action": "PvC" # Player is Blue, Bot is Red
         },
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 2 - button_height // 2, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 2 - button_height - 40, button_width, button_height),
             "color": RED,
             "text": "Play as Red vs Blue Bot",
-            "action": (RED, BLUE)  # Player is Red, Bot is Blue
+            "action": "CvP"  # Player is Red, Bot is Blue
         },
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT * 3 // 4 - button_height // 2, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT * 3 // 4 - button_height - 60, button_width, button_height),
             "color": GREY,
             "text": "Play Locally with a Friend",
-            "action": ("friend", None)  # Local multiplayer, no bots
+            "action": "PvP"  # Local multiplayer, no bots
+        },
+        {
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT - button_height - 80, button_width, button_height),
+            "color": GREY,
+            "text": "Bot VS Bot",
+            "action": "CvC"  # Bot vs Bot game mode
         }
     ]
 
@@ -76,24 +82,32 @@ def choose_game_mode():
 
     pygame.quit()
 
-
 def main():
     pygame.init()
 
     # Get game mode selection
-    player_color, bot_color = choose_game_mode()
+    game_mode = choose_game_mode()
 
-    if player_color is None:
+    if game_mode is None:
         return  # If the user quits during game mode selection
 
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
 
-    # Initialize bot if playing against one
-    bot = None
-    if bot_color is not None:
-        bot = Bot(game, bot_color, player_color)  # Bot will play as bot_color
+    # Initialize bots for Bot VS Bot mode
+    if game_mode == "PvP":
+        blue_player = None
+        red_player = None
+    elif game_mode == "CvP":
+        blue_player = ColbysMiniMax(game, BLUE, RED)
+        red_player = None
+    elif game_mode == "PvC":
+        blue_player = None
+        red_player = ColbysMiniMax(game,RED,BLUE)
+    else:
+        blue_player = Bot(game,BLUE,RED)
+        red_player = ColbysMiniMax(game,RED,BLUE)
 
     while run:
         clock.tick(FPS)
@@ -109,16 +123,24 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and game_mode != "CvC":
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
                 # Select or move piece based on current game state
                 if not game.select(row, col):
                     game.selected = None  # Reset selected piece
 
-        # Let the bot make its move if playing against a bot and it's bot's turn
-        if bot and game.turn == bot_color:
-            bot.make_move()  # Call the bot to make its move
+        # Let the bots make their moves if it's the bot's turn
+        if game_mode == "PvC" and game.turn == RED:
+            red_player.make_move()
+        elif game_mode == "CvP" and game.turn == BLUE:
+            blue_player.make_move()
+        elif game_mode == "CvC":
+            if game.turn == RED:
+                red_player.make_move()
+            else:
+                blue_player.make_move()
+
 
         # Update the display
         game.update()
