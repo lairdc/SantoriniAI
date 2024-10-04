@@ -7,7 +7,17 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+<<<<<<< Updated upstream
+=======
+    "react-scripts": "^5.0.1",
+>>>>>>> Stashed changes
     "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
@@ -32,6 +42,7 @@
       "typescript": "^5"
     }
   },
+<<<<<<< Updated upstream
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
@@ -39,6 +50,8 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+=======
+>>>>>>> Stashed changes
   "eslintConfig": {
     "extends": [
       "react-app",
