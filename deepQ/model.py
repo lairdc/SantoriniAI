@@ -1,7 +1,6 @@
 # model.py
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
 
 
@@ -18,3 +17,12 @@ class DQN(nn.Module):
         x = self.fc3(x)
         return x
 
+    def save_model(self, filepath):
+        """Save the model weights to a file."""
+        torch.save(self.state_dict(), filepath)
+        print(f"Model weights saved to {filepath}")
+
+    def load_model(self, filepath):
+        """Load the model weights from a file."""
+        self.load_state_dict(torch.load(filepath))
+        print(f"Model weights loaded from {filepath}")

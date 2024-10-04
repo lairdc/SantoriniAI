@@ -1,7 +1,7 @@
 import pygame
 
-from deepQ.constants import *
-from deepQ.pieces import Piece
+from .constants import *
+from .pieces import Piece
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
 
@@ -25,9 +25,15 @@ class Board:
                 # Draw the square border
                 pygame.draw.rect(win, GREY, (x, y, SQUARE_SIZE, SQUARE_SIZE), 2)
 
-                # Draw the level number on each tile
-                level_text = self.font.render(str(self.tile_levels[row][col]), True, (0, 0, 0))
-                win.blit(level_text, (x + 5, y + 5))  # Position the text in the top left of each tile
+                #Draw blocks
+                if self.tile_levels[row][col] >= 1:
+                    pygame.draw.rect(win, GREY, (x+(BUFFER/2),y+(BUFFER/2),SQUARE_SIZE-BUFFER,SQUARE_SIZE-BUFFER))
+                if self.tile_levels[row][col] >= 2:
+                    pygame.draw.rect(win, LIGHT_GREY,(x + (BUFFER), y + (BUFFER), SQUARE_SIZE - (2 * BUFFER), SQUARE_SIZE - (2 * BUFFER)))
+                if self.tile_levels[row][col] >= 3:
+                    pygame.draw.rect(win, WHITE, (x + (1.5 * BUFFER), y + (1.5 * BUFFER), SQUARE_SIZE - (3 * BUFFER), SQUARE_SIZE - (3 * BUFFER)))
+                if self.tile_levels[row][col] == 4:
+                    pygame.draw.circle(win, LIGHT_BLUE,(x + SQUARE_SIZE//2, y + SQUARE_SIZE//2), PIECE_SIZE)
 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:

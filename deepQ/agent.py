@@ -78,10 +78,23 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-    def load(self, name):
-        """Load the model weights from a file."""
-        self.model.load_state_dict(torch.load(name))
+    def save_checkpoint(self, filepath):
+        """Save the entire training state to a checkpoint file."""
+        checkpoint = {
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'epsilon': self.epsilon,
+            'memory': list(self.memory),  # Convert deque to list for serialization
+        }
+        torch.save(checkpoint, filepath)
+        print(f"Checkpoint saved to {filepath}")
 
-    def save(self, name):
-        """Save the model weights to a file."""
-        torch.save(self.model.state_dict(), name)
+    def load_checkpoint(self, filepath):
+        """Load the training state from a checkpoint file."""
+        checkpoint = torch.load(filepath)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.epsilon = checkpoint['epsilon']
+        self.memory = deque(checkpoint['memory'], maxlen=self.memory.maxlen)  # Restore memory
+        self.update_target_model()  # Make sure target model is updated
+        print(f"Checkpoint loaded from {filepath}")

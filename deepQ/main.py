@@ -1,8 +1,13 @@
 import pygame
 import numpy as np
+import os
+import argparse
 from deepQ.agent import DQNAgent
 from deepQ.board import Board
 from deepQ.constants import *
+
+# Filename for saving and loading checkpoints
+CHECKPOINT_FILE = "dqn_agent_checkpoint.pth"
 
 
 class Game:
@@ -94,7 +99,7 @@ def extract_state(board):
             piece = board.get_piece(row, col)
             # Encode pieces by color and tile levels
             if piece is None:
-                state.append(0)  # No piece
+                state.append(0)
             elif piece.color == BLUE:
                 state.append(1)  # Blue piece
             else:
@@ -102,10 +107,18 @@ def extract_state(board):
 
             # Append the tile level as a feature
             state.append(board.tile_levels[row][col])
+
+    # for i, element in enumerate(state):
+    #     print(element, end=" ")
+    #     if (i+1) % 2 == 0:
+    #         print("| ", end="")
+    #     if (i + 1) % 10 == 0:
+    #         print()
+    # print("\n\n\n\n\n\n")
     return np.array(state)
 
 
-def run_game():
+def run_game(load_checkpoint=True):
     pygame.init()
     win = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('Deep Q-Learning AI Game')
@@ -116,61 +129,68 @@ def run_game():
     action_size = ROWS * COLS  # Represent each square as an action
     agent = DQNAgent(state_size, action_size)
 
+    # Load checkpoint if specified
+    load_checkpoint = True
+    if load_checkpoint and os.path.isfile(CHECKPOINT_FILE):
+        agent.load_checkpoint(CHECKPOINT_FILE)
+
     running = True
     clock = pygame.time.Clock()
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+    try:
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # Convert the current board state to a numpy array for the agent
+            state = extract_state(game.board)
+
+            # Agent chooses an action
+            action = agent.act(state)
+
+            # Map action to row and col
+            row = action // COLS
+            col = action % COLS
+
+            # Select the piece or build
+            if game.move:
+                reward = 1 if game.select(row, col) else -1  # Reward/Penalty for move phase
+            else:
+                reward = 1 if game.select(row, col) else -1  # Reward/Penalty for build phase
+
+            # Get the next state after the move/build
+            next_state = extract_state(game.board)
+
+            # Check if the game is over
+            if game.game_over:
+                reward = 10  # High reward for winning
                 running = False
 
-        # Convert the current board state to a numpy array for the agent
-        state = extract_state(game.board)
+            # Store the experience in memory
+            agent.remember(state, action, reward, next_state, game.game_over)
 
-        # Agent chooses an action
-        action = agent.act(state)
+            # Update the game display
+            game.update()
 
-        # Map action to row and col
-        row = action // COLS
-        col = action % COLS
+            # Train the agent with replay
+            agent.replay()
 
-        # Select the piece or build
-        if game.move:
-            if game.select(row, col):
-                reward = 1  # Reward for a valid move
-            else:
-                reward = -1  # Penalty for an invalid move
-        else:
-            if game.select(row, col):
-                reward = 1  # Reward for a valid build
-            else:
-                reward = -1  # Penalty for an invalid build
+            # Update target model weights periodically
+            agent.update_target_model()
 
-        # Get the next state after the move/build
-        next_state = extract_state(game.board)
+            # Cap the frame rate
+            clock.tick(30)
 
-        # Check if the game is over
-        if game.game_over:
-            reward = 10  # High reward for winning
-            running = False
-
-        # Store the experience in memory
-        agent.remember(state, action, reward, next_state, game.game_over)
-
-        # Update the game display
-        game.update()
-
-        # Train the agent with replay
-        agent.replay()
-
-        # Update target model weights periodically
-        agent.update_target_model()
-
-        # Cap the frame rate
-        clock.tick(30)
-
-    pygame.quit()
+    finally:
+        # Save the agent's progress on exit
+        agent.save_checkpoint(CHECKPOINT_FILE)
+        print("Checkpoint saved on exit.")
+        pygame.quit()
 
 
 if __name__ == "__main__":
-    run_game()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--load', action='store_true', help="Load from a checkpoint if available.")
+    args = parser.parse_args()
+    run_game(load_checkpoint=args.load)
