@@ -1,9 +1,9 @@
 import pygame
 
-from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from game import Game
-from bot import Bot
-from ColbysMiniMax import ColbysMiniMax
+from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from santoriniGame.game import Game
+from santoriniGame.bot import Bot
+from santoriniGame.ColbysMiniMax import ColbysMiniMax
 
 FPS = 60
 
