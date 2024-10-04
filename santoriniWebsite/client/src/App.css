@@ -54,12 +54,12 @@ h1 {
 
 .game-overview {
   position: relative;
-  background-color: #5e79a6;
+  background-color: #35517d;
   min-height: 40vh; 
-  display: flex; /* Change to flex to arrange children side by side */
+  display: flex; 
   flex-direction: row; 
   justify-content: space-between; 
-  align-items: center; /* Center aligns the items vertically */
+  align-items: center; 
   padding: 20px;
   font-size: calc(10px + 2vmin);
   color: white;
@@ -90,7 +90,6 @@ h1 {
 .game-overview-img img {
   width: 100%; 
   height: auto; 
-  border-radius: 10px; /* Optional: Add styling */
 }
 
 

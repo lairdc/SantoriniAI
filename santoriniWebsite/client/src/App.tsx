@@ -33,7 +33,7 @@ function App() {
           </div>
         </div>
         <div className="game-overview-img">
-          <img src="/clouds.png" alt="Santorini Game" />
+          <img src="/board.png" alt="Santorini Game" />
         </div>
       </div>
     </div>
