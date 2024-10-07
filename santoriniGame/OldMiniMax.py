@@ -28,7 +28,7 @@ PERFORMANCE/EFFICIENCY
 '''
 
 
-class ColbysMiniMax:
+class OldMiniMax:
 	def __init__(self, game, own_color, opp_color):
 		self.game = game  # Reference to the Game object
 		#self.board = Board() SHOULD IMPLEMENT

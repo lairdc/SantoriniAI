@@ -1,13 +1,12 @@
 import pygame
 
-from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from santoriniGame.game import Game
-from santoriniGame.bot import Bot
-from santoriniGame.ColbysMiniMax import ColbysMiniMax
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from game import Game
+from bot import Bot
+from ColbysMiniMax import *
+from OldMiniMax import *
 
 FPS = 60
-
-
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
@@ -74,7 +73,7 @@ def choose_game_mode():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return None, None
+                return None
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
@@ -83,6 +82,8 @@ def choose_game_mode():
                         return button["action"]  # Return the action associated with the clicked button
 
     pygame.quit()
+    return None  # Ensure a return even if the loop ends without user action
+
 
 def main():
     pygame.init()
@@ -102,23 +103,50 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = ColbysMiniMax(game, BLUE, RED)
+        blue_player = Bot(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = ColbysMiniMax(game,RED,BLUE)
-    else:
-        blue_player = Bot(game,BLUE,RED)
-        red_player = ColbysMiniMax(game,RED,BLUE)
+        red_player = ColbysMiniMax(game, RED, BLUE)
+    else:  # Bot vs Bot mode
+        blue_player = OldMiniMax(game, BLUE, RED)
+        red_player = ColbysMiniMax(game, RED, BLUE)
+
+
+        num_games = 100
+        red_wins,blue_wins = (0,0)
+
+        for _ in range(num_games):
+            game.reset()
+            game.game_over = None
+
+            while game.game_over is None:
+                clock.tick(FPS)
+
+                if game.turn == RED:
+                    red_player.make_move()
+                else:
+                    blue_player.make_move()
+
+                game.update()
+
+            if game.game_over == 'RED':
+                red_wins += 1
+            else:
+
+                blue_wins += 1
+
+
+
+
+        # End game after the simulation
+
+        print(f"RED: {red_wins}")
+        print(f"BLUE: {blue_wins}")
+        run = False
 
     while run:
         clock.tick(FPS)
-
-        # Check if the game is over
-        if game.game_over is not None:
-            game.game_over = None
-            game.reset()
-            game.update()
 
         # Check for user events like quitting or clicking
         for event in pygame.event.get():
@@ -133,16 +161,15 @@ def main():
                     game.selected = None  # Reset selected piece
 
         # Let the bots make their moves if it's the bot's turn
-        if game_mode == "PvC" and game.turn == RED:
+        if game_mode == "PvC" and game.turn == RED and game.game_over is None:
             red_player.make_move()
-        elif game_mode == "CvP" and game.turn == BLUE:
+        elif game_mode == "CvP" and game.turn == BLUE and game.game_over is None:
             blue_player.make_move()
-        elif game_mode == "CvC":
+        elif game_mode == "CvC" and game.game_over is None:
             if game.turn == RED:
                 red_player.make_move()
             else:
                 blue_player.make_move()
-
 
         # Update the display
         game.update()

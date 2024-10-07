@@ -6,6 +6,11 @@ class Bot:
         self.own_color = own_color  # Bot's color (BLUE or RED)
         self.opp_color = opp_color
 
+    def reset(self):
+        self.game = None
+        self.own_color = None
+        self.opp_color = None
+
     def make_move(self):
         # Get all pieces for the bot's color
         own_pieces = self.game.board.get_all_pieces(self.own_color)
