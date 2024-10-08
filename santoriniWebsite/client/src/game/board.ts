@@ -69,11 +69,23 @@ export class Board {
         return builds;
     }
 
+    build(row: number, col: number): void {
+        if (this.tileLevels[row][col] < 4) {
+            this.tileLevels[row][col] += 1;
+        }
+    }
+
     getAllPieces(color: [number, number, number]): Piece[] {
         return this.board.filter(piece => piece.color === color);
     }
 
     getTileLevel(row: number, col: number): number {
         return this.tileLevels[row][col];
+    }
+    move(piece: Piece, row: number, col: number): void {
+        const newBoard = this.board.filter(p => p !== piece);
+        piece.move(row, col);
+        newBoard.push(piece);
+        this.board = newBoard;
     }
 }

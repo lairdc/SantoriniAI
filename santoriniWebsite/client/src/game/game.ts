@@ -6,7 +6,7 @@ export class Game {
     private selected: Piece | null;
     private board: Board;
     private turn: [number, number, number];
-    private validMoves: { [key: string]: boolean };
+    private validMoves: { [key: string]: number };
     private move: boolean;
     private gameOver: string | null;
 
@@ -32,7 +32,7 @@ export class Game {
         const piece = this.board.getPiece(row, col);
         if (this.selected) {
             if (this.move) {  // Move phase
-                if (this.validMoves[`${row}-${col}`]) {
+                if (this.validMoves[`${row}-${col}`] !== undefined) {
                     this._move(row, col);
                     return true;
                 } else {
@@ -40,7 +40,7 @@ export class Game {
                     this.validMoves = {};
                 }
             } else {  // Build phase
-                if (this.validMoves[`${row}-${col}`]) {
+                if (this.validMoves[`${row}-${col}`] !== undefined) {
                     this._build(row, col);
                     return true;
                 }
