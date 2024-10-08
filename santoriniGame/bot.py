@@ -1,7 +1,7 @@
 import random
 
 class Bot:
-    def __init__(self, game, own_color, opp_color):
+    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
         self.game = game  # Reference to the Game object
         self.own_color = own_color  # Bot's color (BLUE or RED)
         self.opp_color = opp_color
@@ -10,7 +10,33 @@ class Bot:
         # Get all pieces for the bot's color
         own_pieces = self.game.board.get_all_pieces(self.own_color)
         opp_pieces = self.game.board.get_all_pieces(self.opp_color)
-        tile_levels = self.game.board.get_tile_levels()
+
+
+        # A list of lists
+        # each inner list is a tile on the board in the following form: [x,y,level, piece_present]
+        # for piece_present, 0 = no piece, 1 = own_piece, 2 = opp_piece
+        # so the list [0,0,2,1] means the top left tile is at level 2 with the bot's own piece present on the tile
+        curGameState = []
+
+        for row in range(5):
+            for col in range(5):
+                # Get the level of the current tile
+                level = self.game.board.get_tile_level(row, col)
+
+                # Determine if a piece is present and who owns it
+                piece = self.game.board.get_piece(row, col)
+                piece_present = 0  # No piece by default
+                if piece:
+                    if piece.color == self.own_color:
+                        piece_present = 1  # Bot's own piece
+                    elif piece.color == self.opp_color:
+                        piece_present = 2  # Opponent's piece
+
+                # Add the tile information to curGameState in the form [x, y, level, piece_present]
+                curGameState.append([row, col, level, piece_present])
+
+
+
         if not own_pieces:
             return  # No pieces to move
 
