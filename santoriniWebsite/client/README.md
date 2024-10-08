@@ -1,3 +1,23 @@
+# SantoriniAI Website (Client)
+
+This is the frontend React website for SantoriniAI.
+
+## Setup
+1. Install `NodeJS` (**version >= 18**)
+   * https://nodejs.org
+2. Install `pnpm`
+   * You can use `npm i -g pnpm` or `corepack enable`
+   * `pnpm` is a drop-in replacement for `npm`
+   * https://pnpm.io
+3. Install dependencies
+   * `pnpm i` will automatically fetch, download, and install dependencies
+
+## Development
+* To run locally, use `pnpm dev`
+* To build, use `pnpm build`
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
