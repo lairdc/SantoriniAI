@@ -25,10 +25,11 @@ PERFORMANCE/EFFICIENCY
 	-
 
 
+#MAYBE ABANDONED FILE: TRIED TO SPLIT MINIMAX
 '''
 
 
-class OldMiniMax:
+class SplitMiniMax:
 	def __init__(self, game, own_color, opp_color):
 		self.game = game  # Reference to the Game object
 		#self.board = Board() SHOULD IMPLEMENT
@@ -79,34 +80,45 @@ class OldMiniMax:
 		#print(f"random")
 		return score + random.randint(-10,10)
 
-	def minimax(self, board, depth, alpha, beta, is_maximizing_player):
+	def move_minimax(self, board, depth, alpha, beta, is_maximizing_player):
 	    #print(f"minimax is called {depth} {is_maximizing_player}")
 
-	    if depth <= 0 or self.game_over(board):
-	        return self.evaluate_board(board, is_maximizing_player)
+	    ranked_moves = [] # [(score, board), (score, board)] - sorted by highest score first
+	    if is_maximizing_player:
+	    	turn = self.own_color 
+	    else:
+	    	turn = self.opp_color
 
-	    if is_maximizing_player:  # Bot's turn (Maximizing)
-	        max_score = float('-inf')
-	        for child in self.get_children(board, self.own_color):
-	            score = self.minimax(child, depth - 1, alpha, beta, False)
-	            max_score = max(max_score, score)
-	            alpha = max(alpha, score)  # Update alpha with the best option so far
+	    if is_maximizing_player:
+		    for child in get_move_children(board,turn):
+		    	score = self.evaluate_board(child, is_maximizing_player)
+		    	move_tuple = (-score, child)
+		    	bisect.insort(ranked_moves, move_tuple)
+		else:
+			for child in get_move_children(board,turn):
+		    	score = self.evaluate_board(child, is_maximizing_player)
+		    	move_tuple = (score, child)
+		    	bisect.insort(ranked_moves, move_tuple)
 
-	            # Prune if beta is less than or equal to alpha (beta cutoff)
-	            if beta <= alpha:
-	                break  # No need to explore further
-	        return max_score
-	    else:  # Opponent's turn (Minimizing)
-	        min_score = float('inf')
-	        for child in self.get_children(board, self.opp_color):
-	            score = self.minimax(child, depth - 1, alpha, beta, True)
-	            min_score = min(min_score, score)
-	            beta = min(beta, score)  # Update beta with the best option so far
+		return build_minimax(ranked_moves, depth, alpha, beta, is_maximizing_player, turn)
 
-	            # Prune if beta is less than or equal to alpha (alpha cutoff)
-	            if beta <= alpha:
-	                break  # No need to explore further
-	        return min_score
+
+	def build_minimax(self, ranked_boards, depth, alpha, beta, is_maximizing_player,turn):
+
+
+		if is_maximizing_player:
+			max_score = float('-inf')
+			for ranked_tuple in ranked_boards:
+				move_score, board = ranked_tuple
+				move_score = -move_score
+				for child in get_build_children(board,turn):
+					if depth != 0:
+						score = self.move_minimax(child, depth - 1, alpha, beta, False)
+					else:
+						
+
+
+
 
 
 	def game_over(self, board): #TODO: must fix
@@ -121,7 +133,35 @@ class OldMiniMax:
 				return True
 		return False
 
-	def get_children(self, board, turn): #TODO: update to new board structure not finished
+	def get_move_children(self, board, turn): 
+		children = []
+		pieces = board.pieces[turn]
+
+		for piece in pieces:
+			moves = board.get_moves(piece)
+			for move in moves:
+				new_board = self.simulate_move(board,[piece,move])
+
+				children.append(new_board)
+
+					
+		return children 
+		
+	def get_build_children(self, board, turn): 
+		children = []
+		pieces = board.pieces[turn]
+
+		for piece in pieces:
+			moves = board.get_builds(piece)
+			for move in moves:
+				new_board = self.simulate_build(board,move)
+
+				children.append(new_board)
+
+					
+		return children 	
+
+	def get_turn_children(self, board, turn): 
 		children = []
 		pieces = board.pieces[turn]
 
@@ -135,6 +175,8 @@ class OldMiniMax:
 					
 		return children 
 
+
+
 	def find_best_move(self, board,color):
 
 		best_score = float('-inf')
@@ -143,18 +185,44 @@ class OldMiniMax:
 		#finding all possible moves this turn
 		pieces = board.pieces[color]
 		for piece in pieces:
-			moves = board.get_all_moves(piece)
+			moves = board.get_moves(piece)
 
 			for move in moves:
 				new_board = self.simulate_move(board,move)
-				score = self.minimax(new_board, 3,float('-inf'),float('inf'), False) #DEPTH
+				score = self.move_minimax(new_board, 1,float('-inf'),float('inf'), False) #DEPTH
 
 				if score > best_score:
 					best_score = score
 					best_move = move
 		return best_move
 
+
 	def simulate_move(self, board, move):
+		#move: [(piece coords tuple), (coords to move piece to)]
+		board_copy = board.copy()
+
+		starting_pos, move_pos = move
+		color = board.tiles[starting_pos][1]
+
+		board_copy.pieces[color].remove(starting_pos)
+		board_copy.pieces[color].append(move_pos)
+
+		board_copy.tiles[starting_pos] = (board.tiles[starting_pos][0], None)  # Clear color from starting position
+		board_copy.tiles[move_pos] = (board.tiles[move_pos][0], color)
+
+		return board_copy
+
+
+	def simulate_build(self, board, build):
+		#build = (coords tuple)
+
+		board_copy = board.copy()
+		board_copy.tiles[build_pos] = (board.tiles[build_pos][0] + 1, board.tiles[build_pos][1])  # Increment build level
+
+		return board_copy
+
+
+	def simulate_full_turn(self, board, move):
 		board_copy = board.copy()
 
 		starting_pos, move_pos, build_pos = move
@@ -234,7 +302,7 @@ class OldMiniMax:
 				new_row = row + d[0]
 				new_col = col + d[1]
 				if 0 <= new_row <= 4 and 0 <= new_col <= 4:
-					if self.tiles[(new_row,new_col)][0] != 4 and self.tiles[(new_row,new_col)][0] <= self.tiles[(row,col)][0] + 1 and self.tiles[(new_row,new_col)][1] == None:
+					if self.tiles[(new_row,new_col)][0] != 4 and self.tiles[(new_row,new_col)][0] <= self.tiles[(row,col)][0] + 1:
 						moves.append((new_row,new_col))
 
 			return moves

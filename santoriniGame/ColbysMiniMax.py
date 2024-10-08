@@ -87,7 +87,9 @@ class ColbysMiniMax:
 
 	    if is_maximizing_player:  # Bot's turn (Maximizing)
 	        max_score = float('-inf')
-	        for child in self.get_children(board, self.own_color):
+	        children = self.get_children(board, self.own_color)
+	        children = self.organize_children(children, board, self.own_color)
+	        for child in children:
 	            score = self.minimax(child, depth - 1, alpha, beta, False)
 	            max_score = max(max_score, score)
 	            alpha = max(alpha, score)  # Update alpha with the best option so far
@@ -98,7 +100,9 @@ class ColbysMiniMax:
 	        return max_score
 	    else:  # Opponent's turn (Minimizing)
 	        min_score = float('inf')
-	        for child in self.get_children(board, self.opp_color):
+	        children = self.get_children(board, self.own_color)
+	        children = self.organize_children(children, board, self.own_color)
+	        for child in children:
 	            score = self.minimax(child, depth - 1, alpha, beta, True)
 	            min_score = min(min_score, score)
 	            beta = min(beta, score)  # Update beta with the best option so far
@@ -107,6 +111,20 @@ class ColbysMiniMax:
 	            if beta <= alpha:
 	                break  # No need to explore further
 	        return min_score
+
+	def organize_children(self, children, board,turn):
+		#goal sort children list (boardDicts) into guesses of what is best moves
+		low_prio = []
+		high_prio = []
+		parent_pieces = board.pieces[turn]
+		for child in children:
+			child_pieces = child.pieces[turn]
+			if board.tiles[parent_pieces[0]][0] != child.tiles[child_pieces[0]][0] or board.tiles[parent_pieces[1]][0] != child.tiles[child_pieces[1]][0]:
+				high_prio.append(child)
+			else:
+				low_prio.append(child)
+		return high_prio + low_prio
+
 
 
 	def game_over(self, board): #TODO: must fix
@@ -147,7 +165,7 @@ class ColbysMiniMax:
 
 			for move in moves:
 				new_board = self.simulate_move(board,move)
-				score = self.minimax(new_board, 1,float('-inf'),float('inf'), False) #DEPTH
+				score = self.minimax(new_board, 3,float('-inf'),float('inf'), False) #DEPTH
 
 				if score > best_score:
 					best_score = score
@@ -160,6 +178,8 @@ class ColbysMiniMax:
 		starting_pos, move_pos, build_pos = move
 
 		color = board.tiles[starting_pos][1]  # Second value is the color
+		if color is None:
+		    raise ValueError(f"No piece at starting position {starting_pos}")
 
 		# Update the piece's position in the pieces dict
 		board_copy.pieces[color].remove(starting_pos)
@@ -234,7 +254,7 @@ class ColbysMiniMax:
 				new_row = row + d[0]
 				new_col = col + d[1]
 				if 0 <= new_row <= 4 and 0 <= new_col <= 4:
-					if self.tiles[(new_row,new_col)][0] != 4 and self.tiles[(new_row,new_col)][0] <= self.tiles[(row,col)][0] + 1:
+					if self.tiles[(new_row,new_col)][0] != 4 and self.tiles[(new_row,new_col)][0] <= self.tiles[(row,col)][0] + 1 and self.tiles[(new_row,new_col)][1] == None:
 						moves.append((new_row,new_col))
 
 			return moves
@@ -265,19 +285,20 @@ class ColbysMiniMax:
 			all_moves = []
 			starting_row, starting_col = piece
 
+			# Ensure there is actually a piece on the tile before getting moves
+			if self.tiles[(starting_row, starting_col)][1] is None:
+				print(f"no piece here")
+				return all_moves  # No piece here, return empty move list
+
 			# Get all valid moves for the piece
 			valid_moves = self.get_moves(piece)
-
 			for move in valid_moves:
 				move_row, move_col = move
-
 				# Get all valid builds after moving
 				valid_builds = self.get_builds(move, (starting_row, starting_col))
-
 				for build in valid_builds:
 					build_row, build_col = build
-
-					# Append the starting position, move, and build to the all_moves list
 					all_moves.append([(starting_row, starting_col), (move_row, move_col), (build_row, build_col)])
 
 			return all_moves
+
