@@ -1,11 +1,11 @@
 import { Piece } from './pieces';
 import { Board } from './board';
-import { BLUE, RED } from './constants';
+import { BLUE, Color, RED } from './constants';
 
 export class Game {
-    private selected: Piece | null;
-    private board: Board;
-    private turn: [number, number, number];
+    selected: Piece | null;
+    board: Board;
+    turn: Color;
     private validMoves: { [key: string]: number };
     private move: boolean;
     private gameOver: string | null;
@@ -55,7 +55,7 @@ export class Game {
         return false;
     }
 
-    private _move(row: number, col: number) {
+    _move(row: number, col: number) {
         if (this.selected) {
             this.board.move(this.selected, row, col);
             //check if the piece moved onto a level 3 tile (win condition)
@@ -69,7 +69,7 @@ export class Game {
         }
     }
 
-    private _build(row: number, col: number) {
+    _build(row: number, col: number) {
         this.board.build(row, col);
         this.selected = null;
         this.move = true;  //return to move phase
