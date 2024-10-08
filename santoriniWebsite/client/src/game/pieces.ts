@@ -1,9 +1,11 @@
+import { Color } from "./constants.ts";
+
 export class Piece {
     row: number;
     col: number;
-    color: [number, number, number];
+    color: Color;
 
-    constructor(row: number, col: number, color: [number, number, number]) {
+    constructor(row: number, col: number, color: Color) {
         this.row = row;
         this.col = col;
         this.color = color;
