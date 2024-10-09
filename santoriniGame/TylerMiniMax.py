@@ -1,58 +1,56 @@
 import random
-
+from .pieces import Piece
 class TylerMiniMax:
     def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
         self.game = game  # Reference to the Game object
         self.own_color = own_color  # Bot's color (BLUE or RED)
         self.opp_color = opp_color
-    def get_cur_game_state(self, board):
-        cur_game_state = []
-        for row in range(5):
-            for col in range(5):
-                # Get the level of the current tile
-                level = board.get_tile_level(row, col)
-
-                # Determine if a piece is present and who owns it
-                piece = board.get_piece(row, col)
-                piece_present = 0  # No piece by default
-                if piece:
-                    if piece.color == self.own_color:
-                        piece_present = 1  # Bot's own piece
-                    elif piece.color == self.opp_color:
-                        piece_present = 2  # Opponent's piece
-
-                # Add the tile information to cur_game_state in the form [x, y, level, piece_present]
-                cur_game_state.append([row, col, level, piece_present])
-        return cur_game_state
-    def evaluate_tile_moves(self, old_tile, cur_tile, old_game_state, cur_game_state):
+    def score_move(self, board, cur_x, cur_y, move_x, move_y):
         score = 0
-        row = old_tile[0]
-        col = old_tile[1]
-        cur_level = cur_tile[2]
-        cur_piece = cur_tile[3]
-
+        cur_level = board.get_tile_level(cur_x,cur_y)
+        move_level = board.get_tile_level(move_x,move_y)
+        diff = move_level - cur_level
+        if move_level == 3:
+           score = 10000
+        elif diff == 0:
+            score = 0
+        else:
+            score = 10 * diff
         return score
-    def evaluate_board_moves(self, game_state):
-        scoreBoard = [[0 for _ in range(5)] for _ in range(5)]
-        for tile in game_state:
-            # List of relative coordinates that represent all 8 neighbors plus the center itself
-            directions = [(-1, -1), (-1, 0), (-1, 1),
-                          (0, -1), (0, 0), (0, 1),
-                          (1, -1), (1, 0), (1, 1)]
 
-            # Loop through all 8 directions + the center itself
-            for dx, dy in directions:
-                # Calculate the coordinates of the surrounding point
-                new_x, new_y = tile[0] + dx, tile[1] + dy
-                # Check if the new coordinates are within the bounds of the array
-                score = 0
-                if tile[3] == 1:  # own Color's piece present
-                    score += (tile[2] * 5)
-                    if (tile[2] == 3):
-                        score += 10000
-                if 0 <= new_x < 5 and 0 <= new_y < 5 and tile[3] == 1:
-                    scoreBoard[new_x][new_y] += score
-        return scoreBoard
+    def opp_win(self, board, opp_pieces):
+        for piece in opp_pieces:
+            valid_moves = self.game.board.get_valid_moves(piece)
+            for move, level in valid_moves.items():
+                if level == 3:
+                    return list(move)  # returns [new_row, new_col]
+        return None
+    def score_build(self, board, build_x, build_y, opp_win_pos):
+        if opp_win_pos is not None and build_x == opp_win_pos[0] and build_y == opp_win_pos[1]:
+            return 5000
+        else:
+            return 10 * board.get_tile_level(build_x, build_y)
+    def get_best_actions(self, board):
+        #[piece_index,move_x,move_y,build_x,build_y,score]
+        actions = []
+        actions_size = -1
+        highest_score_index = 0
+        own_pieces = self.game.board.get_all_pieces(self.own_color)
+        opp_pieces = self.game.board.get_all_pieces(self.opp_color)
+        for i in range(len(own_pieces)):
+            valid_moves = self.game.board.get_valid_moves(own_pieces[i])
+            score = 0
+            for move in valid_moves:
+                score += self.score_move(board, own_pieces[i].get_x, own_pieces[i].get_y, move[0], move[1])
+                fake_piece = Piece(move[0],move[1],self.own_color)
+                valid_builds = self.game.board.get_valid_builds(fake_piece)
+                for build in valid_builds:
+                    score += self.score_build(board, build[0], build[1], self.opp_win(board, opp_pieces))
+                    actions.append([i,move[0],move[1],build[0],build[1],score])
+                    actions_size += 1
+                    if score >= actions[highest_score_index][5]:
+                        highest_score_index = actions_size
+
     def make_move(self):
         # Get all pieces for the bot's color
         own_pieces = self.game.board.get_all_pieces(self.own_color)
