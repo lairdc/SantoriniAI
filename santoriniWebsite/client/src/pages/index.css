@@ -1,9 +1,9 @@
-.App {
+.index-app {
   text-align: center;
   min-height: 150vh;
 }
 
-.App-logo {
+.index-app-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -14,7 +14,7 @@
   }
 }
 
-.App-header {
+.index-app-header {
   position: relative;
   background-color: #eac9a4; 
   background-image: url('/clouds.png'); 
@@ -115,7 +115,7 @@ button:hover {
   justify-content: center;
 }
 
-.App-link {
+.index-app-link {
   color: #61dafb;
 }
 

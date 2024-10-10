@@ -3,8 +3,8 @@ import './index.css';
 
 export default function IndexPage() {
     return (
-        <div className="App">
-            <header className="App-header">
+        <div className="index-app">
+            <header className="index-app-header">
                 <h1>
                     <span className="welcome">Welcome to </span>
                     <span className="santorini">SantoriniAI</span>
