@@ -29,8 +29,12 @@ class TylerMiniMax:
         if opp_win_pos is not None and build_x == opp_win_pos[0] and build_y == opp_win_pos[1]:
             return 5000
         else:
-            return 10 * board.get_tile_level(build_x, build_y)
-    def get_best_actions(self, board):
+            tile_level = board.get_tile_level(build_x,build_y)
+            if tile_level > 3:
+                return -10 * board.get_tile_level(build_x, build_y)
+            else:
+                return -10 * board.get_tile_level(build_x,build_y)
+    def get_best_action(self, board):
         #[piece_index,move_x,move_y,build_x,build_y,score]
         actions = []
         actions_size = -1
@@ -41,47 +45,44 @@ class TylerMiniMax:
             valid_moves = self.game.board.get_valid_moves(own_pieces[i])
             score = 0
             for move in valid_moves:
-                score += self.score_move(board, own_pieces[i].get_x, own_pieces[i].get_y, move[0], move[1])
+                piece_x = own_pieces[i].get_x()
+                piece_y = own_pieces[i].get_y()
+                score += self.score_move(board, piece_x, piece_y, move[0], move[1])
                 fake_piece = Piece(move[0],move[1],self.own_color)
                 valid_builds = self.game.board.get_valid_builds(fake_piece)
                 for build in valid_builds:
                     score += self.score_build(board, build[0], build[1], self.opp_win(board, opp_pieces))
+                    print(piece_x," : ",piece_y," : ",move[0]," : ",move[1]," : ",build[0]," : ",build[1]," : ",score)
                     actions.append([i,move[0],move[1],build[0],build[1],score])
                     actions_size += 1
                     if score >= actions[highest_score_index][5]:
                         highest_score_index = actions_size
+        if actions_size == -1:
+            return None
+        else:
+            return actions[highest_score_index]
 
     def make_move(self):
         # Get all pieces for the bot's color
         own_pieces = self.game.board.get_all_pieces(self.own_color)
         opp_pieces = self.game.board.get_all_pieces(self.opp_color)
 
-
-        # A list of lists
-        # each inner list is a tile on the board in the following form: [x,y,level, piece_present]
-        # for piece_present, 0 = no piece, 1 = own_piece, 2 = opp_piece
-        # so the list [0,0,2,1] means the top left tile is at level 2 with the bot's own piece present on the tile
-        curGameState = self.get_cur_game_state()
-
         if not own_pieces:
             return  # No pieces to move
 
+        action = self.get_best_action(self.game.board)
+
         # Randomly select a piece and valid moves for it
-        piece = random.choice(own_pieces)
+        piece = own_pieces[action[0]]
         valid_moves = self.game.board.get_valid_moves(piece)
 
         # If there are valid moves, pick one randomly and move
-        if valid_moves:
-            move = random.choice(list(valid_moves)) #Change for AI
+        if action is not None:
+            move = [action[1],action[2]]
             row, col = move
             if self.game.select(piece.row, piece.col):  # Simulate piece selection
                 self.game._move(row, col)  # Move to a random valid position
-
-                # Perform a random build after moving
-                valid_builds = self.game.board.get_valid_builds(self.game.selected)
-                if valid_builds:
-                    build = random.choice(list(valid_builds))
-                    build_row, build_col = build
-                    self.game._build(build_row, build_col)
-
+                build = [action[3],action[4]]
+                build_row, build_col = build
+                self.game._build(build_row, build_col)
         self.game.selected = None  # Deselect after the move and build

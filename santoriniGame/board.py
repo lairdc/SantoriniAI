@@ -59,7 +59,6 @@ class Board:
             if piece.row == row and piece.col == col:
                 return piece
         return None
-
     def create_board(self):
         # Create blue pieces in the corners
         self.board.append(Piece(1, 1, BLUE))  # Top-left corner

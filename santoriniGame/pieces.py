@@ -20,10 +20,10 @@ class Piece:
 		self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
 		self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 	def get_x(self):
-		return self.x
+		return self.row
 
 	def get_y(self):
-		return self.y
+		return self.col
 
 	def draw(self, win: pygame.SurfaceType):
 		pygame.draw.circle(win, self.color, (self.x, self.y), PIECE_SIZE)
