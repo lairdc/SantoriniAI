@@ -4,10 +4,12 @@ import time  # Import time module
 from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from game import Game
 from bot import Bot
-from ColbysMiniMax import *
-from OldMiniMax import *
+from ColbysMiniMax.ColbysMiniMax import *
+from ColbysMiniMax.OldMiniMax import *
+
 
 FPS = 60
+
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
@@ -113,14 +115,17 @@ def main():
 
         num_games = 1
         red_wins, blue_wins = (0, 0)
+        blue_turns = 0
+        red_turns = 0
+        blue_time_total = 0
+        red_time_total = 0
 
         for _ in range(num_games):
             game.reset()
             game.game_over = None
 
             # Time tracking for each player
-            blue_time_total = 0
-            red_time_total = 0
+            
 
             # Start tracking turns
             turn_start_time = time.time()
@@ -133,15 +138,17 @@ def main():
 
                     # Calculate time spent on RED's turn
                     turn_end_time = time.time()
-                    red_time_total += turn_end_time - turn_start_time
+                    red_time_total += (turn_end_time - turn_start_time)
                     turn_start_time = turn_end_time  # Reset for next turn
+                    red_turns += 1
                 else:
                     blue_player.make_move()
 
                     # Calculate time spent on BLUE's turn
                     turn_end_time = time.time()
-                    blue_time_total += turn_end_time - turn_start_time
+                    blue_time_total += (turn_end_time - turn_start_time)
                     turn_start_time = turn_end_time  # Reset for next turn
+                    blue_turns += 1
 
                 game.update()
 
@@ -156,6 +163,7 @@ def main():
             print(f"Winner: {winner}")
             print(f"RED total time: {red_time_total:.2f} seconds")
             print(f"BLUE total time: {blue_time_total:.2f} seconds")
+            print(f"BLUE avg time per turn {blue_time_total/blue_turns:.2f}")
 
         print(f"RED Wins: {red_wins}")
         print(f"BLUE Wins: {blue_wins}")
