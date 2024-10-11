@@ -1,11 +1,12 @@
 import pygame
-from .constants import *
+
+from constants import *
 
 class Piece:
 	PADDING = 15
 	BORDER = 2
 
-	def __init__(self,row,col,color):
+	def __init__(self, row: int, col: int, color: tuple[int, int, int]):
 		self.row = row
 		self.col = col
 		self.color = color
@@ -19,11 +20,10 @@ class Piece:
 		self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
 		self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 
-	def draw(self, win):
-		radius = SQUARE_SIZE//2 - self.PADDING
-		pygame.draw.circle(win, self.color, (self.x, self.y), radius)
+	def draw(self, win: pygame.SurfaceType):
+		pygame.draw.circle(win, self.color, (self.x, self.y), PIECE_SIZE)
 
-	def move(self,row,col,level):
+	def move(self, row: int, col: int, level: int):
 		self.row = row
 		self.col = col
 		self.level = level
@@ -31,5 +31,4 @@ class Piece:
 
 	def __repr__(self):
 		return str(self.color)
-
 

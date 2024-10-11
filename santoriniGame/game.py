@@ -1,9 +1,12 @@
 import pygame
-from .constants import *
-from .board import Board
+
+from pieces import Piece
+from santoriniGame.board import Board
+from santoriniGame.constants import *
+
 
 class Game:
-    def __init__(self, win):
+    def __init__(self, win: pygame.SurfaceType):
         self._init()
         self.win = win
         self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
@@ -13,7 +16,7 @@ class Game:
         pygame.display.update()
 
     def _init(self):
-        self.selected = None
+        self.selected: Piece | None = None
         self.board = Board()
         self.turn = BLUE
         self.valid_moves = {}
@@ -23,7 +26,7 @@ class Game:
     def reset(self):
         self._init()
 
-    def select(self, row, col):
+    def select(self, row: int, col: int):
         piece = self.board.get_piece(row, col)
 
         if self.selected:
@@ -48,7 +51,7 @@ class Game:
 
         return False
 
-    def _build(self, row, col):
+    def _build(self, row: int, col: int):
         self.board.tile_levels[row][col] += 1
         print(f"Built at ({row}, {col}), New level: {self.board.tile_levels[row][col]}")  # Debugging output
         self.valid_moves = {}
@@ -56,7 +59,7 @@ class Game:
         self.change_turn()  # Change turn after building
         self.selected = None  # Deselect after building
 
-    def _move(self, row, col):
+    def _move(self, row: int, col: int):
         if self.selected and (row, col) in self.valid_moves:
             self.board.move(self.selected, row, col)
 
@@ -72,15 +75,32 @@ class Game:
             return True
         return False
 
-    def display_winner(self, winner_color):
+    def display_winner(self, winner_color: tuple[int, int, int]):
+        self.valid_moves = None
+        self.update()
         font = pygame.font.SysFont(None, 72)
         win_text = f"{'Blue' if winner_color == BLUE else 'Red'} Wins!"
         text = font.render(win_text, True, (255, 255, 255))  # White text
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(1000)  # Display the message for 3 seconds
+        pygame.time.delay(5000)  # Display the message for 3 seconds
 
     def change_turn(self):
         self.turn = RED if self.turn == BLUE else BLUE
         print(f"Turn changed to {'Red' if self.turn == RED else 'Blue'}")  # Debugging output
+        
+        # Check if the new turn player has valid moves
+        if not self.has_valid_moves(self.turn):
+            opponent_color = RED if self.turn == BLUE else BLUE
+            self.display_winner(opponent_color)  # Display winner message for the opponent
+            self.game_over = opponent_color  # Set game_over to winning color
+            print(f"{'Red' if opponent_color == RED else 'Blue'} wins by default! No valid moves for {self.turn}.")
+    
+    def has_valid_moves(self, color):
+        """Check if the player with the specified color has any valid moves."""
+        pieces = self.board.get_all_pieces(color)  # Get all pieces of the current player
+        for piece in pieces:
+            if self.board.get_valid_moves(piece):
+                return True  # Found a piece with valid moves or builds
+        return False  # No valid moves found for any pieces
