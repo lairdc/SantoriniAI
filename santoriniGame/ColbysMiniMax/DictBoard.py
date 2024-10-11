@@ -4,13 +4,32 @@ import copy
 
 
 class DictBoard:
-	def __init__(self): #CHANGE SO BOARD IS SET TO DEFAULT START
+	def __init__(self):
+		# Initialize the board with dictionaries for tiles and pieces
 		self.tiles = {}
-		self.pieces = {
+		self.pieces = {'RED': [], 'BLUE': []}
 
-		'RED': [],
-		'BLUE': []
-		}
+	def __reduce__(self):
+		"""
+		Override the reduce method for custom pickling. 
+		This controls how the DictBoard is serialized and deserialized.
+		"""
+		# Specify what to save during pickling (only tiles and pieces)
+		return (self.__class__, (), self.__getstate__())
+
+	def __getstate__(self):
+		"""
+		Return the object state (tiles and pieces) for serialization.
+		"""
+		return {'tiles': self.tiles, 'pieces': self.pieces}
+
+	def __setstate__(self, state):
+		"""
+		Restore the object state from the deserialized state.
+		"""
+		self.tiles = state['tiles']
+		self.pieces = state['pieces']
+
 
 	def copy(self):
 		return copy.deepcopy(self)
@@ -20,8 +39,8 @@ class DictBoard:
 		row, col = piece
 		directions = [
 			(-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
-			(0, -1),         (0, 1),     # Left,         , right
-			(1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
+			(0, -1),		 (0, 1),	 # Left,		 , right
+			(1, -1), (1, 0), (1, 1)	  # Bottom-left, bottom, bottom-right
 		]
 
 
@@ -41,8 +60,8 @@ class DictBoard:
 		row, col = piece
 		directions = [
 			(-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
-			(0, -1),         (0, 1),     # Left,         , right
-			(1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
+			(0, -1),		 (0, 1),	 # Left,		 , right
+			(1, -1), (1, 0), (1, 1)	  # Bottom-left, bottom, bottom-right
 		]
 
 		for d in directions:

@@ -2,6 +2,8 @@ import random
 import copy
 from .Eval import *
 from .DictBoard import *
+from functools import cache
+import multiprocessing
 
 
 '''
@@ -54,65 +56,48 @@ class ColbysMiniMax:
 
 	def minimax(self, board, depth, alpha, beta, is_maximizing):
 		game_over = self.game_over(board)
-		if depth <= 0:
-
-			return Eval(board, self.own_color).eval()
-		elif game_over == self.own_color:
-			return 10000000
-
-		elif game_over == self.opp_color:
+		if depth <= 0 or game_over:
 			return Eval(board, self.own_color).eval()
 
+		children = self.get_children(board, self.own_color if is_maximizing else self.opp_color)
+		children = self.organize_children(children, board, self.own_color if is_maximizing else self.opp_color)
 
+		# Use multiprocessing pool to evaluate children in parallel
+		with multiprocessing.Pool() as pool:
+			if is_maximizing:
+				results = pool.starmap(self.evaluate_child_max, [(child, depth, alpha, beta) for child in children])
+				return max(results)
+			else:
+				results = pool.starmap(self.evaluate_child_min, [(child, depth, alpha, beta) for child in children])
+				return min(results)
 
-		#not sure if evaluation of board depends on the color.
-		if is_maximizing: 
-			max_score = float('-inf')
-			children = self.get_children(board, self.own_color)
-			children = self.organize_children(children, board, self.own_color)
-			for child in children:
-				score = self.minimax(child, depth - 1, alpha, beta, False)
-				max_score = max(max_score, score)
-				
-				#alpha-beta pruning
-				alpha = max(alpha, score)
-				if beta <= alpha:
-					break
+	def evaluate_child_max(self, child, depth, alpha, beta):
+		score = self.minimax(child, depth - 1, alpha, beta, False)
+		return max(alpha, score)
 
-			return max_score
-		else: #minimizing
-			min_score = float('inf')
-			children = self.get_children(board, self.opp_color)
-			children = self.organize_children(children, board, self.opp_color)
-			for child in children:
-				score = self.minimax(child, depth - 1, alpha, beta, True)
-				min_score = min(min_score, score)
-				beta = min(beta,score)
-
-				if beta <= alpha:
-					break
-			return min_score
-
+	def evaluate_child_min(self, child, depth, alpha, beta):
+		score = self.minimax(child, depth - 1, alpha, beta, True)
+		return min(beta, score)
 
 	def organize_children(self, children, board, turn):
-	    # Organize children to evaluate better moves first
+		# Organize children to evaluate better moves first
 
-	    # Cache old levels once
-	    old_pieces = board.pieces[turn]
-	    old_levels = [board.tiles[p][0] for p in old_pieces]
+		# Cache old levels once
+		old_pieces = board.pieces[turn]
+		old_levels = [board.tiles[p][0] for p in old_pieces]
 
-	    def compare_child(child):
-	        # Calculate new levels for this child only once
-	        new_pieces = board.pieces[turn]
-	        new_levels = [board.tiles[p][0] for p in new_pieces]
-	        
-	        # Return the number of pieces that have moved up in level
-	        improved = sum(1 for i in range(2) if new_levels[i] > old_levels[i])
-	        return improved
+		def compare_child(child):
+			# Calculate new levels for this child only once
+			new_pieces = board.pieces[turn]
+			new_levels = [board.tiles[p][0] for p in new_pieces]
+			
+			# Return the number of pieces that have moved up in level
+			improved = sum(1 for i in range(2) if new_levels[i] > old_levels[i])
+			return improved
 
-	    # Sort the children based on how many pieces improved
-	    children.sort(key=compare_child, reverse=True)
-	    return children
+		# Sort the children based on how many pieces improved
+		children.sort(key=compare_child, reverse=True)
+		return children
 
 		
 			
@@ -150,6 +135,22 @@ class ColbysMiniMax:
 
 		return children
 
+	def get_depth(self, board):
+		total_level = 0
+		for r in range(ROWS):
+			for c in range(COLS):
+				total_level += board.tiles[(r,c)][0]
+
+		if total_level <= 10:
+			depth = 1
+		elif total_level <= 30:
+			depth = 2
+		else:
+			depth = 3
+
+		return depth
+
+
 	def find_best_move(self, board, color):
 		'''
 		THis function should find all of the possible moves for the current board,
@@ -167,7 +168,7 @@ class ColbysMiniMax:
 
 			for move in moves:
 				new_board, trash = self.simulate_move(board,move)
-				score = self.minimax(new_board, DEPTH, float('-inf'),float('inf'), False)
+				score = self.minimax(new_board, self.get_depth(board), float('-inf'),float('inf'), False)
 
 				if score > best_score:
 					best_score = score 

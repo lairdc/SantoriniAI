@@ -111,9 +111,9 @@ def main():
         red_player = ColbysMiniMax(game, RED, BLUE)
     else:
         blue_player = ColbysMiniMax(game, BLUE, RED)
-        red_player = OldMiniMax(game, RED, BLUE)
+        red_player = ColbysMiniMax(game, RED, BLUE)
 
-        num_games = 1
+        num_games = 25
         red_wins, blue_wins = (0, 0)
         blue_turns = 0
         red_turns = 0
