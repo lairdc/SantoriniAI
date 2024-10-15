@@ -1,5 +1,5 @@
 import { Piece } from './pieces';
-import { COLS, ROWS, RED, BLUE } from './constants';
+import {COLS, ROWS, RED, BLUE, Color} from './constants';
 
 export class Board {
     board: Piece[]; //1d list of pieces
@@ -75,7 +75,7 @@ export class Board {
         }
     }
 
-    getAllPieces(color: [number, number, number]): Piece[] {
+    getAllPieces(color: Color): Piece[] {
         return this.board.filter(piece => piece.color === color);
     }
 
