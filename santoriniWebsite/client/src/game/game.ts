@@ -2,6 +2,8 @@ import { Piece } from './pieces';
 import { Board } from './board';
 import { BLUE, RED } from './constants';
 
+//test
+
 export class Game {
     private selected: Piece | null;
     private board: Board;
