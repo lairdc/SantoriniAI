@@ -147,7 +147,7 @@ class OldMiniMax:
 
 			for move in moves:
 				new_board = self.simulate_move(board,move)
-				score = self.minimax(new_board, 2,float('-inf'),float('inf'), False) #DEPTH
+				score = self.minimax(new_board, 1,float('-inf'),float('inf'), False) #DEPTH
 
 				if score > best_score:
 					best_score = score

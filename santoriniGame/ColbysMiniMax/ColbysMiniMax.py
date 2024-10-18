@@ -54,54 +54,63 @@ class ColbysMiniMax:
 		self.opp_color = None
 
 
-	def minimax(self, board, depth, alpha, beta, is_maximizing):
-		game_over = self.game_over(board)
-		if depth <= 0 or game_over:
-			return Eval(board, self.own_color).eval()
+	def minimax(self, board, depth, alpha, beta, is_maximizing_player):
+	    #print(f"minimax is called {depth} {is_maximizing_player}")
 
-		children = self.get_children(board, self.own_color if is_maximizing else self.opp_color)
-		children = self.organize_children(children, board, self.own_color if is_maximizing else self.opp_color)
+	    if depth <= 0 or self.game_over(board):
+	        return Eval(board,self.own_color).eval()
 
-		# Use multiprocessing pool to evaluate children in parallel
-		with multiprocessing.Pool() as pool:
-			if is_maximizing:
-				results = pool.starmap(self.evaluate_child_max, [(child, depth, alpha, beta) for child in children])
-				return max(results)
-			else:
-				results = pool.starmap(self.evaluate_child_min, [(child, depth, alpha, beta) for child in children])
-				return min(results)
+	    if is_maximizing_player:  # Bot's turn (Maximizing)
+	        max_score = float('-inf')
 
-	def evaluate_child_max(self, child, depth, alpha, beta):
-		score = self.minimax(child, depth - 1, alpha, beta, False)
-		return max(alpha, score)
+	        for child in self.organize_children(self.get_children(board, self.own_color),board,self.own_color):
+	            score = self.minimax(child, depth - 1, alpha, beta, False)
+	            max_score = max(max_score, score)
+	            alpha = max(alpha, score)  # Update alpha with the best option so far
 
-	def evaluate_child_min(self, child, depth, alpha, beta):
-		score = self.minimax(child, depth - 1, alpha, beta, True)
-		return min(beta, score)
+	            # Prune if beta is less than or equal to alpha (beta cutoff)
+	            if beta <= alpha:
+	                break  # No need to explore further
+	        return max_score
+	    else:  # Opponent's turn (Minimizing)
+	        min_score = float('inf')
+	        for child in self.organize_children(self.get_children(board, self.opp_color), board, self.opp_color):
+	            score = self.minimax(child, depth - 1, alpha, beta, True)
+	            min_score = min(min_score, score)
+	            beta = min(beta, score)  # Update beta with the best option so far
+
+	            # Prune if beta is less than or equal to alpha (alpha cutoff)
+	            if beta <= alpha:
+	                break  # No need to explore further
+	        return min_score
+
 
 	def organize_children(self, children, board, turn):
 		# Organize children to evaluate better moves first
+		better = []
+		okay = []
+		bad = []
 
 		# Cache old levels once
 		old_pieces = board.pieces[turn]
 		old_levels = [board.tiles[p][0] for p in old_pieces]
 
-		def compare_child(child):
-			# Calculate new levels for this child only once
-			new_pieces = board.pieces[turn]
-			new_levels = [board.tiles[p][0] for p in new_pieces]
-			
-			# Return the number of pieces that have moved up in level
-			improved = sum(1 for i in range(2) if new_levels[i] > old_levels[i])
-			return improved
+		for c in children:
 
-		# Sort the children based on how many pieces improved
-		children.sort(key=compare_child, reverse=True)
-		return children
+			new_pieces = c.pieces[turn]
+			new_levels = [c.tiles[p][0] for p in new_pieces]
 
 		
-			
+			if new_levels[0] > old_levels[0] or new_levels[1] > old_levels[1]:
+				better.append(c)
+			elif new_levels[0] == old_levels[0] and new_levels[1] == old_levels[1]:
+				if (random.randint(0,2) == 1):
+					okay.append(c)
+			else:
+				if (random.randint(0,3) == 1):
+					bad.append(c)
 
+		return better + okay + bad
 
 
 	def game_over(self,board):
@@ -126,12 +135,12 @@ class ColbysMiniMax:
 		for piece in pieces:
 			moves = board.get_all_moves(piece)
 			for move in moves:
-				new_board, winner = self.simulate_move(board,move)
+				new_board, winner, add = self.simulate_move(board,move)
 				if winner:
 					children = [new_board]
 					return children
-
-				children.append(new_board)
+				elif add:
+					children.append(new_board)
 
 		return children
 
@@ -142,11 +151,11 @@ class ColbysMiniMax:
 				total_level += board.tiles[(r,c)][0]
 
 		if total_level <= 10:
-			depth = 1
-		elif total_level <= 30:
 			depth = 2
-		else:
+		elif total_level <= 40:
 			depth = 3
+		else:
+			depth = 5
 
 		return depth
 
@@ -167,13 +176,20 @@ class ColbysMiniMax:
 			moves = board.get_all_moves(piece)
 
 			for move in moves:
-				new_board, trash = self.simulate_move(board,move)
+				new_board, trash1, trash2 = self.simulate_move(board,move)
+				if self.winning_board(new_board):
+					return move
 				score = self.minimax(new_board, self.get_depth(board), float('-inf'),float('inf'), False)
 
 				if score > best_score:
 					best_score = score 
 					best_move = move 
 		return best_move
+
+	def winning_board(self, new_board):
+		if new_board.tiles[new_board.pieces[self.own_color][0]][0] == 3 or new_board.tiles[new_board.pieces[self.own_color][1]][0] == 3:
+			return True
+		return False
 
 	def simulate_move(self, board, move):
 		board_copy = board.copy()
@@ -193,8 +209,10 @@ class ColbysMiniMax:
 		board_copy.tiles[move_pos] = (board.tiles[move_pos][0], color)  # Set color to the move position
 		board_copy.tiles[build_pos] = (board.tiles[build_pos][0] + 1, board.tiles[build_pos][1])  # Increment build level
 		if (board.tiles[move_pos][0] == 3):
-					return (board_copy,True)
-		return (board_copy, False)
+					return (board_copy,True, True)
+		elif (board.tiles[move_pos][0] == 1 or board.tiles[move_pos][0] == 0) and random.randint(0,1) == 1:
+			return board_copy, False, True
+		return board_copy, False, False 
 
 
 	def make_move(self): #TODO: maybe need to update

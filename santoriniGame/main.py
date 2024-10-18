@@ -1,6 +1,8 @@
 import pygame
 import time  # Import time module
 
+
+
 from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from game import Game
 from bot import Bot
@@ -111,9 +113,9 @@ def main():
         red_player = ColbysMiniMax(game, RED, BLUE)
     else:
         blue_player = ColbysMiniMax(game, BLUE, RED)
-        red_player = ColbysMiniMax(game, RED, BLUE)
+        red_player = OldMiniMax(game, RED, BLUE)
 
-        num_games = 25
+        num_games = 10
         red_wins, blue_wins = (0, 0)
         blue_turns = 0
         red_turns = 0
