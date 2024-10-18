@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import '../fonts.css';
 import './index.css';
 
@@ -5,6 +7,11 @@ export default function IndexPage() {
     return (
         <div className="index-app">
             <header className="index-app-header">
+                <div className="rules-button-container">
+                    <Link to="/rules" className="rules-button">
+                        Rules
+                    </Link>
+                </div>
                 <h1>
                     <span className="welcome">Welcome to </span>
                     <span className="santorini">SantoriniAI</span>
