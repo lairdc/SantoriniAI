@@ -6,45 +6,60 @@ class TylerMiniMax:
         self.game = game  # Reference to the Game object
         self.own_color = own_color  # Bot's color (BLUE or RED)
         self.opp_color = opp_color
+
+    # Scores move based on current pos and move pos and where the oppoent pieces are
     def score_move(self, board, cur_x, cur_y, move_x, move_y, opp_pieces):
         cur_level = board.get_tile_level(cur_x,cur_y)
         move_level = board.get_tile_level(move_x,move_y)
         diff = move_level - cur_level
-        score = 0;
-        if move_level == 3:
+        score = 0
+        if move_level == 3:  # Winning ove
            score = 100000
-        elif diff == 0:
-            score =  0
-        else:
-            score =  500 * diff
+        elif diff == 0:  # Staying on the same level
+            score = 0
+        else:  #Moving level
+            score = 500 * diff
         return score + self.dist_from_opp(opp_pieces,move_x,move_y)
-    def opp_win(self, board, opp_pieces):
+
+    #Checks if the oppoent can move to the given pos
+    def opp_can_move(self, board, opp_pieces, action_x, action_y):
         for piece in opp_pieces:
             valid_moves = self.game.board.get_valid_moves(piece)
             for move, level in valid_moves.items():
-                if level == 3:
-                    return list(move)  # returns [new_row, new_col]
-        return None
-    def score_build(self, board, build_x, build_y, opp_win_pos, opp_pieces):
-        if opp_win_pos is not None and build_x == opp_win_pos[0] and build_y == opp_win_pos[1]:
-            return 50000
+                if move[0] == action_x and move[1] == action_y:
+                    return True
+        return False
+
+    # Scores a build pos based on level and where opponent piece are
+    def score_build(self, board, build_x, build_y, opp_can_move, opp_pieces):
+        tile_level = board.get_tile_level(build_x, build_y)
+        score = 0
+        # Opponent can move to pos
+        if opp_can_move:
+            if tile_level == 3:  # Dome opponents winning move
+                score = 50000
+            elif tile_level == 2:  # Doesn't give winning move to opponent
+                score = -50000
         else:
-            tile_level = board.get_tile_level(build_x,build_y)
+            # Tries building up
             if tile_level > 3:
-                return -100 * board.get_tile_level(build_x, build_y) + self.dist_from_opp(opp_pieces,build_x,build_y)
+                score = -100 * board.get_tile_level(build_x, build_y) + self.dist_from_opp(opp_pieces,build_x,build_y)
             else:
-                return 100 * board.get_tile_level(build_x,build_y) + self.dist_from_opp(opp_pieces,build_x,build_y)
+                score = 100 * board.get_tile_level(build_x,build_y) + self.dist_from_opp(opp_pieces,build_x,build_y)
+        return score
+
+    # Calculates the closest distance an action pos is from a opponent piece as an int
     def dist_from_opp(self,opp_pieces,action_x,action_y):
         dist = 99.9
         for i in range(len(opp_pieces)):
             cur_dist = math.sqrt(((opp_pieces[i].get_x()-action_x) ** 2) + ((opp_pieces[i].get_y()-action_y) ** 2))
             if cur_dist < dist:
                 dist = cur_dist
-        print("Dist: ", int(dist))
         return int(dist)
 
+    # Gets all possible move and build combinations possible, scores them, and then returns the combination with the highest score
     def get_best_action(self, board):
-        #[piece_index,move_x,move_y,build_x,build_y,score]
+        # Return type [piece_index,move_x,move_y,build_x,build_y,score]
         actions = []
         actions_size = -1
         highest_score_index = 0
@@ -53,30 +68,32 @@ class TylerMiniMax:
         for i in range(len(own_pieces)):
             valid_moves = self.game.board.get_valid_moves(own_pieces[i])
             for move in valid_moves:
-                score = 0
-                piece_x = own_pieces[i].get_x()
-                piece_y = own_pieces[i].get_y()
-                score += self.score_move(board, piece_x, piece_y, move[0], move[1],opp_pieces)
+                move_score = self.score_move(board, own_pieces[i].get_x(), own_pieces[i].get_y(), move[0], move[1],opp_pieces)
+                # Simulate the piece moving to the location for build
                 fake_piece = Piece(move[0],move[1],self.own_color)
                 valid_builds = self.game.board.get_valid_builds(fake_piece)
+                # Calulates score for the pieces current pos before they moved
+                valid_builds[(own_pieces[i].get_x(), own_pieces[i].get_y())] = board.get_tile_level(own_pieces[i].get_x(), own_pieces[i].get_y())
                 for build in valid_builds:
-                    score += self.score_build(board, build[0], build[1], self.opp_win(board, opp_pieces), opp_pieces)
-                    print(piece_x," : ",piece_y," : ",move[0]," : ",move[1]," : ",build[0]," : ",build[1]," : ",score)
+                    opp_move = self.opp_can_move(board, opp_pieces, build[0], build[1])
+                    build_score = self.score_build(board, build[0], build[1], opp_move, opp_pieces)
+                    score = move_score + build_score
+                    print(own_pieces[i].get_x()," : ",own_pieces[i].get_y()," : ",move[0]," : ",move[1]," : ",build[0]," : ",build[1]," : ",score)
                     actions.append([i,move[0],move[1],build[0],build[1],score])
                     actions_size += 1
                     if score > actions[highest_score_index][5]:
                         highest_score_index = actions_size
-                    elif score == actions[highest_score_index][5]:
+                    elif score == actions[highest_score_index][5]:  # If scores are equal, it randomly chooses to change the action
                         rand = random.randint(0,1)
                         if rand == 0:
                             highest_score_index = actions_size
+
         if actions_size == -1:
             return None
         else:
             return actions[highest_score_index]
 
     def make_move(self):
-        # Get all pieces for the bot's color
         own_pieces = self.game.board.get_all_pieces(self.own_color)
         opp_pieces = self.game.board.get_all_pieces(self.opp_color)
 
@@ -84,11 +101,9 @@ class TylerMiniMax:
             return  # No pieces to move
 
         action = self.get_best_action(self.game.board)
-        # Randomly select a piece and valid moves for it
         piece = own_pieces[action[0]]
         valid_moves = self.game.board.get_valid_moves(piece)
 
-        # If there are valid moves, pick one randomly and move
         if action is not None:
             move = [action[1],action[2]]
             row, col = move
