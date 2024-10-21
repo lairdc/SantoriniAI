@@ -41,10 +41,6 @@ class YaseminsMiniMax:
         best_score = float('-inf')
         best_piece = own_pieces[0]
         best_results = []
-        for piece in own_pieces:
-            row = piece.row
-            col = piece.col
-            #print(f"{row}, {col}")
 
         # Continue recursively finding the best move for turn alpha > 0
         if (alpha > 0):
@@ -52,36 +48,29 @@ class YaseminsMiniMax:
             if (alpha % 2 == 0):                # On even alpha, play from our perspective
                 current_pieces = own_pieces
             else:
-                current_pieces = opp_pieces     # On odd alpha, play from opponents perspective
-            
-            #print(f"alpha {alpha}")
+                current_pieces = opp_pieces     # On odd alpha, play from opponents perspective            
+            #print(f"On alpha = {alpha}")
 
             # Evaluate the success of each possible (move, build) we can pick
             for piece in current_pieces:
                 print("TRYING PIECE")
                 row = piece.row
                 col = piece.col
-                #print(f"{row}, {col}")
-                #print("")
                 valid_moves = self.game.board.get_valid_moves(piece).copy()
                 base_row = piece.row
                 base_col = piece.col
                 base = base_row, base_col
-                #print(f"{base}")
-                if self.game.select(piece.row, piece.col):  # Simulate piece selection
-                    #print("in")
+
+                if self.game.select(row, col):  # Simulate piece selection
+
                     for move in valid_moves:
                         row, col = move                     # Simulate move
                         self._try_move(move)
-                        #self.game._move(row, col)
-                        #print(f"Move to {row}, {col} on alpha {alpha}")
-                        #print("in")
 
                         # Evaluate each (move, build) result
                         valid_builds = self.game.board.get_valid_builds(self.game.selected).copy()
                         for build in valid_builds:
                             self._try_build(build)         # Simulate build
-                            #print("in")
                             score = self.evaluate_result(move, build, alpha)
 
                             # Simulate the next move and see if it results in a board state preferred by current alpha
@@ -109,17 +98,15 @@ class YaseminsMiniMax:
                                 best_results.append( (move, build) )
 
                         self._try_move(base)           # Undo simulated move
-                        #self.game._move(base_row, base_col)
+
+                    # Undo simulated selection
+                    self.game.selected = None
+
                 else:
-                    print("Failed piece selection")
-                    selec = self.game.selected
-                    #print(f"{row}, {col}")
-                    piece2 = self.game.board.get_piece(row, col)
-                    #print(f"{piece2}")
-                    if piece2 is not None: 
-                        if piece2.color == self.game.turn:
-                            print("Piece selection should have success")
-                    #print(f"{selec}")
+                    print(f"Failed piece selection at {row}, {col}")
+                    debug = self.debug_selection(row, col)
+                    if debug:
+                        print("Piece selection should have success")
         
         # Return any move resulting in the best board outcomes
         if best_results:
@@ -175,3 +162,29 @@ class YaseminsMiniMax:
             # print(f"Moved to ({row}, {col})")  # Debugging output
             #return True
         #return False
+
+    
+    def debug_selection(self, row: int, col: int):
+        piece = self.game.board.get_piece(row, col)
+
+        if self.game.selected:
+            if self.game.move:  # Move phase
+                if (row, col) in self.game.valid_moves:
+                    print("1")
+                    return True
+                else:
+                    # Deselect the piece if the move is invalid
+                    print("2")
+                    return False
+            else:  # Build phase
+                if (row, col) in self.game.valid_moves:
+                    print("3")
+                    return True
+        else:
+            # Select a piece belonging to the current turn
+            if piece is not None and piece.color == self.game.turn:
+                print("4")
+                return True
+        
+        print("5")
+        return False
