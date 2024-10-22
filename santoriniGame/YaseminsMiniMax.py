@@ -25,25 +25,27 @@ class YaseminsMiniMax:
             return  # No pieces to move
         
         # Find the best possible move
-        chosen_result, best_score, chosen_piece = self.find_best_move(own_pieces, opp_pieces, alpha)
-        print(f"Received {chosen_result}, and {best_score}, and {chosen_piece}")
+        chosen_result, best_score, chosen_piece_index = self.find_best_move(own_pieces, opp_pieces, alpha)
+        chosen_piece = own_pieces[chosen_piece_index]
+        # print(f"Received {chosen_result}, and {best_score}, and ({chosen_piece.row}, {chosen_piece.col}) at index {chosen_piece_index}")
         # Complete actions
         if self.game.select(chosen_piece.row, chosen_piece.col): 
-            print(f"Moved piece from ({chosen_piece.row}, {chosen_piece.col}) to {chosen_result[0]}")
+            # print(f"Moved piece from ({chosen_piece.row}, {chosen_piece.col}) to {chosen_result[0]}")
             row, col = chosen_result[0]
             self.game._move(row, col)                 # Move to chosen (row, col)
             build_row, build_col = chosen_result[1]   # Build on chosen (row, col)
             self.game._build(build_row, build_col)
-        print("NEXT TURN \n\n")
+        # print("NEXT TURN \n\n")
         self.game.selected = None                 # Deselect after the move and build
 
     def find_best_move(self, own_pieces, opp_pieces, alpha):
         best_score = float('-inf')
-        best_piece = own_pieces[0]
+        best_piece_index = -1
         best_results = []
 
         # Continue recursively finding the best move for turn alpha > 0
         if (alpha > 0):
+            current_piece_index = 0
             current_pieces = None
             if (alpha % 2 == 0):                # On even alpha, play from our perspective
                 current_pieces = own_pieces
@@ -53,7 +55,6 @@ class YaseminsMiniMax:
 
             # Evaluate the success of each possible (move, build) we can pick
             for piece in current_pieces:
-                print("TRYING PIECE")
                 row = piece.row
                 col = piece.col
                 valid_moves = self.game.board.get_valid_moves(piece).copy()
@@ -61,11 +62,13 @@ class YaseminsMiniMax:
                 base_col = piece.col
                 base = base_row, base_col
 
-                if self.game.select(row, col):  # Simulate piece selection
+                if self.try_selection(row, col):  # Simulate piece selection
 
                     for move in valid_moves:
                         row, col = move                     # Simulate move
                         self._try_move(move)
+                        current_pieces[current_piece_index].row = row
+                        current_pieces[current_piece_index].col = col
 
                         # Evaluate each (move, build) result
                         valid_builds = self.game.board.get_valid_builds(self.game.selected).copy()
@@ -74,16 +77,16 @@ class YaseminsMiniMax:
                             score = self.evaluate_result(move, build, alpha)
 
                             # Simulate the next move and see if it results in a board state preferred by current alpha
-                            #next_result, next_score, next_piece = self.find_best_move(own_pieces, opp_pieces, alpha - 1)
                             next_result = ( (0, 0), (0, 0) )
                             next_score = 0
-                            next_piece = piece
+                            next_piece_index = 0
+                            # next_result, next_score, next_piece = self.find_best_move(own_pieces, opp_pieces, alpha - 1)
                             score += next_score
 
                             self._destroy(build)           # Undo simulated build
 
                             replace = False
-                            equal = (score == best_score) and (piece == best_piece)
+                            equal = (score == best_score) and (current_piece_index == best_piece_index)
                             if (alpha % 2 == 0): 
                                 replace = score > best_score        # We want the highest possible score
 
@@ -93,7 +96,7 @@ class YaseminsMiniMax:
                             if replace:
                                 best_score = score
                                 best_results = [ (move, build) ]
-                                best_piece = piece
+                                best_piece_index = current_piece_index
                             elif equal:
                                 best_results.append( (move, build) )
 
@@ -101,27 +104,30 @@ class YaseminsMiniMax:
 
                     # Undo simulated selection
                     self.game.selected = None
-
+                    current_pieces[current_piece_index].row = base_row
+                    current_pieces[current_piece_index].col = base_col
+                    current_piece_index += 1
+                   
                 else:
                     print(f"Failed piece selection at {row}, {col}")
-                    debug = self.debug_selection(row, col)
+                    debug = self.try_selection(row, col)
                     if debug:
                         print("Piece selection should have success")
         
         # Return any move resulting in the best board outcomes
         if best_results:
-            return ( random.choice(best_results), best_score, best_piece )
-        return ( ( (0, 0), (0, 0) ), best_score, own_pieces[0] )
+            return ( random.choice(best_results), best_score, best_piece_index )
+        return ( ( (0, 0), (0, 0) ), best_score, 0 )
 
     def evaluate_result(self, move, build, alpha):
         score = 0
         move_r, move_c = move
 
         # Prioritize winning the game above all else
-        print(f"Checking {move_r}, {move_c} with value {self.game.board.tile_levels[move_r][move_c]}")
+        # print(f"Checking {move_r}, {move_c} with value {self.game.board.tile_levels[move_r][move_c]}")
         if self.game.board.tile_levels[move_r][move_c] == 3:
             score = float('inf')
-            print(f"Found a winning move")
+            # print(f"Found a winning move")
 
         # Prioritize proximity to higher tiered buildings
         # tba
@@ -164,27 +170,13 @@ class YaseminsMiniMax:
         #return False
 
     
-    def debug_selection(self, row: int, col: int):
+    def try_selection(self, row: int, col: int):
         piece = self.game.board.get_piece(row, col)
-
-        if self.game.selected:
-            if self.game.move:  # Move phase
-                if (row, col) in self.game.valid_moves:
-                    print("1")
-                    return True
-                else:
-                    # Deselect the piece if the move is invalid
-                    print("2")
-                    return False
-            else:  # Build phase
-                if (row, col) in self.game.valid_moves:
-                    print("3")
-                    return True
-        else:
-            # Select a piece belonging to the current turn
-            if piece is not None and piece.color == self.game.turn:
-                print("4")
-                return True
         
-        print("5")
+        # Select a piece belonging to the current turn
+        if piece is not None and piece.color == self.game.turn:
+            self.game.selected = piece
+            self.game.valid_moves = self.game.board.get_valid_moves(piece)
+            return True
+        
         return False
