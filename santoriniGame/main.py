@@ -101,14 +101,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = YaseminsMiniMax(game, BLUE, RED)
+        blue_player = ColbysMiniMax(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        red_player = ColbysMiniMax(game,RED,BLUE)
     else:
         blue_player = Bot(game,BLUE,RED)
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        red_player = ColbysMiniMax(game,RED,BLUE)
 
     while run:
         clock.tick(FPS)
