@@ -9,6 +9,7 @@ from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY,
 from santoriniGame.game import Game
 from santoriniGame.bot import Bot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
+from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
 
 
