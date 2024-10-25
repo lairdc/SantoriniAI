@@ -4,6 +4,7 @@ from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY,
 from santoriniGame.game import Game
 from santoriniGame.bot import Bot
 from santoriniGame.ColbysMiniMax import ColbysMiniMax
+from santoriniGame.YaseminsMiniMax import YaseminsMiniMax
 
 FPS = 60
 
