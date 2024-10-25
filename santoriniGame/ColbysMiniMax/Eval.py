@@ -89,8 +89,8 @@ class Eval:
 		own2 = self.board.pieces[self.own_color][1]
 		opp1 = self.board.pieces[self.opp_color][0]
 		opp2 = self.board.pieces[self.opp_color][1]
-		p_score = self.score_piece(own1)
-		p_score += self.score_piece(own2)
+		p_score = self.score_piece(own1) * 1.3
+		p_score += self.score_piece(own2) * 1.3
 		p_score -= self.score_piece(opp1)
 		p_score -= self.score_piece(opp2)
 
@@ -139,7 +139,7 @@ class Eval:
 			r_score = r_score/2
 
 		#the r_score should be more important at higher values, and less important at low values:
-		r_score = 0.00045 * (r_score ** 5)
+		#r_score = 0.00045 * (r_score ** 5)
 		with open("ColbysMiniMax/score_metrics.txt", "a") as f:
 			f.write(f"p_score: {A * p_score}\n")
 			f.write(f"a_score: {B * a_score}\n")
