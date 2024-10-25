@@ -1,10 +1,10 @@
 import pygame
 
-from .constants import *
-from .pieces import Piece
+from constants import *
+from pieces import Piece
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
-
+#test
 class Board:
     def __init__(self):
         self.board: list[Piece] = []  # 1-D list of pieces
