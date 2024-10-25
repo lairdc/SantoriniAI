@@ -2,6 +2,8 @@ import pygame
 
 from board import Board
 from constants import *
+from pieces import Piece
+
 
 
 class Game:
@@ -15,7 +17,7 @@ class Game:
         pygame.display.update()
 
     def _init(self):
-        self.selected = None
+        self.selected: Piece | None = None
         self.board = Board()
         self.turn = BLUE
         self.valid_moves = {}
@@ -50,7 +52,7 @@ class Game:
 
         return False
 
-    def _build(self, row, col):
+    def _build(self, row: int, col: int):
         self.board.tile_levels[row][col] += 1
         #print(f"Built at ({row}, {col}), New level: {self.board.tile_levels[row][col]}")  # Debugging output
         self.valid_moves = {}
