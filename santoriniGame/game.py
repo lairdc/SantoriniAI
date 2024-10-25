@@ -1,9 +1,8 @@
 import pygame
 
-
-from santoriniGame.pieces import Piece
-from santoriniGame.board import Board
-from santoriniGame.constants import *
+from board import Board
+from constants import *
+from pieces import Piece
 
 
 

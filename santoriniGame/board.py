@@ -1,8 +1,8 @@
 import pygame
 import copy
 
-from santoriniGame.constants import *
-from santoriniGame.pieces import Piece
+from constants import *
+from pieces import Piece
 
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
