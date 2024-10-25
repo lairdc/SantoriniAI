@@ -2,14 +2,12 @@ import { Piece } from './pieces';
 import { Board } from './board';
 import { BLUE, Color, RED } from './constants';
 
-//test
-
 export class Game {
     selected: Piece | null;
     board: Board;
     turn: Color;
     private validMoves: { [key: string]: number };
-    private move: boolean;
+    move: boolean;
     private gameOver: string | null;
 
     constructor() {
@@ -35,22 +33,28 @@ export class Game {
         if (this.selected) {
             if (this.move) {  // Move phase
                 if (this.validMoves[`${row}-${col}`] !== undefined) {
+                    console.log("moved");
                     this._move(row, col);
                     return true;
                 } else {
+                    console.log("invalid move")
                     this.selected = null;
                     this.validMoves = {};
                 }
             } else {  // Build phase
                 if (this.validMoves[`${row}-${col}`] !== undefined) {
+                    console.log("built");
                     this._build(row, col);
                     return true;
-                }
+                } else console.log("invalid build")
             }
         } else {
+            console.log("none selected piece")
             if (piece && piece.color === this.turn) {
+                console.log("marked selected")
                 this.selected = piece;
                 this.validMoves = this.board.getValidMoves(piece);
+                console.log(this.validMoves)
                 return true;
             }
         }
