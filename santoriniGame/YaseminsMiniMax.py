@@ -23,7 +23,7 @@ class YaseminsMiniMax:
         chosen_piece = own_pieces[chosen_piece_index]
 
         # Debug output
-        # print(f"Received {chosen_result}, and {best_score}, and ({chosen_piece.row}, {chosen_piece.col}) at index {chosen_piece_index}")
+        print(f"Received {chosen_result}, and {best_score}, and ({chosen_piece.row}, {chosen_piece.col}) at index {chosen_piece_index}")
 
         # Perform optimal move and build for current board state
         if self.game.select(chosen_piece.row, chosen_piece.col):   
@@ -71,7 +71,7 @@ class YaseminsMiniMax:
                         piece.calc_pos()
                         for build in valid_builds:
                             self._try_build(build)         # Simulate build
-                            score = self.evaluate_result(move, build, alpha)
+                            score = self.evaluate_result(move, build, alpha, opp_pieces)
 
                             # Simulate the next move and see if it results in a board state preferred by current alpha
                             next_result, next_score, next_piece = self.find_best_move(own_pieces, opp_pieces, alpha - 1)
@@ -133,9 +133,10 @@ class YaseminsMiniMax:
         
         return current_pieces
 
-    def evaluate_result(self, move, build, alpha):
+    def evaluate_result(self, move, build, alpha, opp_pieces):
         score = 0
         move_r, move_c = move
+        build_r, build_c = build
 
         # Prioritize winning the game above all else
         #print(f"Checking {move_r}, {move_c} with value {self.game.board.tile_levels[move_r][move_c]}")
@@ -145,16 +146,22 @@ class YaseminsMiniMax:
             if (alpha % 2 != 0):
                 winner = "opponent"
             # print(f"Found a winning move for {winner}")
-
+        
         # Prioritize proximity to higher tiered buildings
-        # tba
+        score += self.game.board.tile_levels[move_r][move_c]
+        if self.game.board.tile_levels[build_r][build_c] < 4:
+            score += self.game.board.tile_levels[build_r][build_c]
 
         # Prioritize building away from opponent
-        # tba
+        for piece in opp_pieces:
+            score -= self._dist(build_r, build_c, piece.row, piece.col)
 
         # Return positive or negative depending on turn alpha
         if (alpha % 2 == 0): return score
         return -score
+
+    def _dist(self, x_1, y_1, x_2, y_2):
+        return math.sqrt( pow(x_2 - x_1, 2) + pow(y_2 - y_1, 2))
 
     def _print_all_pieces(self, own_pieces, opp_pieces):
         #print(f"Own: ({own_pieces[0].row}, {own_pieces[0].col}) and ({own_pieces[1].row}, {own_pieces[1].col}) ... Opp: ({opp_pieces[0].row}, {opp_pieces[0].col}) and ({opp_pieces[1].row}, {opp_pieces[1].col})")
@@ -166,19 +173,16 @@ class YaseminsMiniMax:
             print(f"Opp: {piece.x}, {piece.y}")
         print("\n")
 
-    # Builds at (x, y) of build without ending turn
     def _try_build(self, build):
         row, col = build
         self.game.board.tile_levels[row][col] += 1
         #print(f"Trying build at ({row}, {col}), New level: {self.game.board.tile_levels[row][col]}")  # Debugging output
 
-    # Destroys a building at (x, y) of build
     def _destroy(self, build):
         row, col = build
         self.game.board.tile_levels[row][col] -= 1
         #print(f"Destroyed at ({row}, {col}), New level: {self.game.board.tile_levels[row][col]}")  # Debugging output
 
-    # Moves piece to (x, y) of move without ending turn or evaluating winners
     def _try_move(self, move):
         row, col = move
         if self.game.selected and (row, col) in self.game.valid_moves:
