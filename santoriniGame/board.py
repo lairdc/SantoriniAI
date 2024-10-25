@@ -4,15 +4,20 @@ import copy
 from constants import *
 from pieces import Piece
 
+<<<<<<< HEAD
+=======
+from constants import *
+from pieces import Piece
+>>>>>>> origin
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
-
+#test
 class Board:
 
 
 
     def __init__(self):
-        self.board = []  # 1-D list of pieces
+        self.board: list[Piece] = []  # 1-D list of pieces
         self.tile_levels = [[0 for _ in range(COLS)] for _ in range(ROWS)]  # Track tile levels
         self.create_board()
         #self.font = pygame.font.SysFont(None, 36)  # Font for displaying tile levels
@@ -22,7 +27,7 @@ class Board:
         return copy.deepcopy(self)
 
 
-    def draw(self, win: pygame.SurfaceType, valid_moves=None):
+    def draw(self, win: pygame.SurfaceType, valid_moves: dict[tuple[int, int], int] = None):
         win.fill(GREEN)
 
         # Draw the grid
@@ -126,7 +131,7 @@ class Board:
 
         return builds
 
-    def get_all_pieces(self, color):
+    def get_all_pieces(self, color: tuple[int, int, int]):
         pieces = []
         for piece in self.board:
             if piece is not None and piece.color == color:

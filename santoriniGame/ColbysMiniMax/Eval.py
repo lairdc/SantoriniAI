@@ -13,7 +13,7 @@ DIRECTIONS = [
 				(1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
 			]
 LEVEL_VALUES = [0,10,20,50,1]
-A = 30
+A = 40
 B = 1 
 C = 1
 D = 1

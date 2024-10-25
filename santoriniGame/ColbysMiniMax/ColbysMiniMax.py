@@ -149,8 +149,9 @@ class ColbysMiniMax:
 		for r in range(ROWS):
 			for c in range(COLS):
 				total_level += board.tiles[(r,c)][0]
-
 		if total_level <= 10:
+			depth = 1
+		elif total_level <= 20:
 			depth = 2
 		elif total_level <= 40:
 			depth = 3
