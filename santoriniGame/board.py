@@ -4,11 +4,6 @@ import copy
 from constants import *
 from pieces import Piece
 
-<<<<<<< HEAD
-=======
-from constants import *
-from pieces import Piece
->>>>>>> origin
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
 #test

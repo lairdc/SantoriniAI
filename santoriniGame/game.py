@@ -1,13 +1,11 @@
 import pygame
 
-<<<<<<< HEAD
-from board import Board
-from constants import *
-=======
+
+
 from pieces import Piece
 from santoriniGame.board import Board
 from santoriniGame.constants import *
->>>>>>> origin
+
 
 
 class Game:
