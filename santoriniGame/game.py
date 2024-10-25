@@ -1,8 +1,10 @@
 import pygame
 
+
 from santoriniGame.pieces import Piece
 from santoriniGame.board import Board
 from santoriniGame.constants import *
+
 
 
 class Game:
@@ -31,7 +33,7 @@ class Game:
 
         if self.selected:
             if self.move:  # Move phase
-                if (row, col) in self.valid_moves:
+                if self.valid_moves != None and (row, col) in self.valid_moves:
                     self._move(row, col)
                     return True
                 else:
@@ -53,7 +55,7 @@ class Game:
 
     def _build(self, row: int, col: int):
         self.board.tile_levels[row][col] += 1
-        print(f"Built at ({row}, {col}), New level: {self.board.tile_levels[row][col]}")  # Debugging output
+        #print(f"Built at ({row}, {col}), New level: {self.board.tile_levels[row][col]}")  # Debugging output
         self.valid_moves = {}
         self.move = True  # Reset to move phase
         self.change_turn()  # Change turn after building
@@ -84,7 +86,8 @@ class Game:
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(5000)  # Display the message for 3 seconds
+        pygame.time.delay(500)  # Display the message for 3 seconds
+        return winner_color
 
     def change_turn(self):
         self.turn = RED if self.turn == BLUE else BLUE
