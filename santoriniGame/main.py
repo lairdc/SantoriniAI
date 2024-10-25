@@ -3,7 +3,7 @@ import pygame
 from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from santoriniGame.game import Game
 from santoriniGame.bot import Bot
-from santoriniGame.TylerMiniMax import TylerMiniMax
+from TylerMiniMax.TylerMiniMax import TylerMiniMax
 
 FPS = 60
 

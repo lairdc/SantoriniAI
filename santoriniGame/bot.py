@@ -43,7 +43,6 @@ class Bot:
         # Randomly select a piece and valid moves for it
         piece = random.choice(own_pieces)
         valid_moves = self.game.board.get_valid_moves(piece)
-
         # If there are valid moves, pick one randomly and move
         if valid_moves:
             move = random.choice(list(valid_moves))
