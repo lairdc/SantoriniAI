@@ -1,8 +1,8 @@
 import pygame
 import copy
 
-from constants import *
-from pieces import Piece
+from santoriniGame.constants import *
+from santoriniGame.pieces import Piece
 
 
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
@@ -69,7 +69,6 @@ class Board:
             if piece.row == row and piece.col == col:
                 return piece
         return None
-
     def create_board(self):
         # Create blue pieces in the corners
         self.board.append(Piece(1, 1, BLUE))  # Top-left corner
