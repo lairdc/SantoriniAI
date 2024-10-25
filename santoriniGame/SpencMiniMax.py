@@ -45,13 +45,16 @@ class SpencMiniMax:
         # If moving up a level, higher score
         level_score = 0
         if move_level > cur_level:
-            level_score += 1
+            level_score += 100
+
+        if move_level == 3:
+            level_score = 10000
 
         # If same level or higher as opponent, higher score
-        same_level_score = 0
-        for i in range(len(opp_level)):
-            if move_level >= opp_level[i]:
-                level_score += 1
+        #same_level_score = 0
+        #for i in range(len(opp_level)):
+        #    if move_level >= opp_level[i]:
+        #        level_score += 1
 
         # Closer to opponent, higher score
         if allied_piece_index != -1 and len(opp_pieces) == 2:
@@ -66,7 +69,7 @@ class SpencMiniMax:
         #   1. Distance from opponent
         #   2. Same level as opponent
         #   3. Moving up levels
-        return 5*level_score + 2*same_level_score + 10*distance_score
+        return 100*level_score + 30*distance_score
 
     # Retrieves the distance of the closest opponent
     def dist_from_opp(self,opp_pieces,action_x,action_y):

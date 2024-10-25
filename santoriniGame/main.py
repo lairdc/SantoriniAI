@@ -3,7 +3,7 @@ import pygame
 from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from santoriniGame.game import Game
 from santoriniGame.bot import Bot
-from santoriniGame.ColbysMiniMax import ColbysMiniMax
+from santoriniGame.SpencMiniMax import SpencMiniMax
 
 FPS = 60
 
@@ -100,14 +100,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = ColbysMiniMax(game, BLUE, RED)
+        blue_player = SpencMiniMax(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = ColbysMiniMax(game,RED,BLUE)
+        red_player = SpencMiniMax(game,RED,BLUE)
     else:
         blue_player = Bot(game,BLUE,RED)
-        red_player = ColbysMiniMax(game,RED,BLUE)
+        red_player = SpencMiniMax(game,RED,BLUE)
 
     while run:
         clock.tick(FPS)
