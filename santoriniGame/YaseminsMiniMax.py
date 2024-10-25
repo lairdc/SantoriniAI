@@ -23,7 +23,7 @@ class YaseminsMiniMax:
         chosen_piece = own_pieces[chosen_piece_index]
 
         # Debug output
-        print(f"Received {chosen_result}, and {best_score}, and ({chosen_piece.row}, {chosen_piece.col}) at index {chosen_piece_index}")
+        # print(f"Received {chosen_result}, and {best_score}, and ({chosen_piece.row}, {chosen_piece.col}) at index {chosen_piece_index}")
 
         # Perform optimal move and build for current board state
         if self.game.select(chosen_piece.row, chosen_piece.col):   
