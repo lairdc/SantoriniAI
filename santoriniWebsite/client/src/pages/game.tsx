@@ -38,10 +38,10 @@ export default function GamePage() {
         }
     }
 
-    const gridded = spaces.map((row, i) => <div key={`row-${i}`}>{row}</div>);
+    const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
     return [
-        <span>{game.turn}'s turn to {game.move ? "move" : "build"}</span>,
+        <span key="game-state">{game.turn}'s turn to {game.move ? "move" : "build"}</span>,
         ...gridded
     ]
 }
