@@ -5,9 +5,9 @@ import time  # Import time module
 
 
 
-from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from santoriniGame.game import Game
-from santoriniGame.bot import Bot
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from game import Game
+from bot import Bot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
@@ -109,14 +109,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = TylerMiniMax(game, BLUE, RED)
+        blue_player = YaseminsMiniMax(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = TylerMiniMax(game,RED,BLUE)
+        red_player = YaseminsMiniMax(game,RED,BLUE)
     else:
         blue_player = Bot(game,BLUE,RED)
-        red_player = TylerMiniMax(game,RED,BLUE)
+        red_player = YaseminsMiniMax(game,RED,BLUE)
 
 
         num_games = 10
@@ -188,7 +188,10 @@ def main():
                 if not game.select(row, col):
                     game.selected = None
 
-        if game_mode == "PvC" and game.turn == RED and game.game_over is None:
+        if game.game_over is not None:
+            game.reset()
+            game.game_over = None
+        elif game_mode == "PvC" and game.turn == RED and game.game_over is None:
             red_player.make_move()
         elif game_mode == "CvP" and game.turn == BLUE and game.game_over is None:
             blue_player.make_move()

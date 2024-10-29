@@ -1,6 +1,6 @@
 import random
 import math
-from santoriniGame.pieces import Piece
+from pieces import Piece
 
 class TylerMiniMax:
     def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
