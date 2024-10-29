@@ -200,6 +200,10 @@ def main():
 
         game.update()
 
+        if game.game_over is not None:
+            game.reset()
+            game.game_over = None
+
     pygame.quit()
 
 if __name__ == "__main__":
