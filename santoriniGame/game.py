@@ -85,7 +85,7 @@ class Game:
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(500)  # Display the message for 3 seconds
+        pygame.time.delay(2000)  # Display the message for 2 seconds
         return winner_color
 
     def change_turn(self):

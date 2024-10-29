@@ -188,7 +188,10 @@ def main():
                 if not game.select(row, col):
                     game.selected = None
 
-        if game_mode == "PvC" and game.turn == RED and game.game_over is None:
+        if game.game_over is not None:
+            game.reset()
+            game.game_over = None
+        elif game_mode == "PvC" and game.turn == RED and game.game_over is None:
             red_player.make_move()
         elif game_mode == "CvP" and game.turn == BLUE and game.game_over is None:
             blue_player.make_move()
@@ -199,10 +202,6 @@ def main():
                 blue_player.make_move()
 
         game.update()
-
-        if game.game_over is not None:
-            game.reset()
-            game.game_over = None
 
     pygame.quit()
 
