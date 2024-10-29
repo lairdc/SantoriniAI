@@ -5,12 +5,12 @@ import time  # Import time module
 
 
 
-from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from santoriniGame.game import Game
-from santoriniGame.bot import Bot
-from santoriniGame.TylerMiniMax.TylerMiniMax import TylerMiniMax
-from santoriniGame.YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
-from santoriniGame.ColbysMiniMax.ColbysMiniMax import *
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from game import Game
+from bot import Bot
+from TylerMiniMax.TylerMiniMax import TylerMiniMax
+from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
+from ColbysMiniMax.ColbysMiniMax import *
 
 
 FPS = 60
