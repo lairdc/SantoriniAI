@@ -12,9 +12,9 @@
 1. **Download Python**: Download here: https://www.python.org/downloads/
 2. **Download pygame**: Download here: https://www.pygame.org/wiki/GettingStarted
    * Alternatively, you can use `pip install -r requirements.txt`
-3. Run through your IDE, or on command line:
+3. Run through your IDE, or on command line after navigating to SantoriniAI/santoriniGame:
 ```
-python3 -m santoriniGame.main
+python3 -m main
 ```
 ## How to Access the SantoriniAI Website
 1. Download Node.js from https://nodejs.org/
