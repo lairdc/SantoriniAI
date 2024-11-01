@@ -9,7 +9,7 @@ from model import DQN
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, hidden_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001, memory_size=2000, batch_size=64):
+    def __init__(self, state_size, action_size, hidden_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.01, memory_size=2000, batch_size=64):
         self.state_size = state_size
         self.action_size = action_size
         self.hidden_size = hidden_size

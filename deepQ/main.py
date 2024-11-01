@@ -157,14 +157,14 @@ def run_game(load_checkpoint=True):
             if game.move:
                 reward = 1 if game.select(row, col) else -1  # Reward/Penalty for move phase
             else:
-                reward = 1 if game.select(row, col) else -1  # Reward/Penalty for build phase
+                reward = 10 if game.select(row, col) else -1  # Reward/Penalty for build phase
 
             # Get the next state after the move/build
             next_state = extract_state(game.board)
 
             # Check if the game is over
             if game.game_over:
-                reward = 10  # High reward for winning
+                reward = 100  # High reward for winning
                 running = False
 
             # Store the experience in memory
