@@ -6,7 +6,7 @@ export class Game {
     selected: Piece | null;
     board: Board;
     turn: Color;
-    private validMoves: { [key: string]: number };
+    validMoves: { [key: string]: number };
     move: boolean;
     gameOver: string | null;
 
@@ -45,6 +45,7 @@ export class Game {
                 if (this.validMoves[`${row}-${col}`] !== undefined) {
                     console.log("built");
                     this._build(row, col);
+                    this.validMoves = {};
                     return true;
                 } else console.log("invalid build")
             }

@@ -22,7 +22,7 @@ export default function GamePage() {
         }
 
         return (
-            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${update}`} onClick={()=>{
+            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${`${row}-${col}` in game.validMoves ? "game-space-valid" : ""} ${update}`} onClick={()=>{
                 if (!game.gameOver) {
                      if (!game.select(row, col)) {
                         game.selected = null;
