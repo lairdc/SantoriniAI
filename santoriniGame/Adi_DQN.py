@@ -91,3 +91,40 @@ class DQNSantoriniAgent:
                         piece_present = 2
                 cur_game_state.extend([row, col, level, piece_present])
         return cur_game_state
+    
+    def get_action_space(self):
+        #create a simplified action space, for example:
+        #action format: (piece_idx, move_direction, build_direction)
+        return [(i, j, k) for i in range(2) for j in range(8) for k in range(8)]
+
+    def step(self):
+        #get the current state
+        state = self.get_cur_game_state()
+        #choose an action
+        action = self.act(state)
+        #execute the  action
+        piece_idx, move_dir, build_dir = self.get_action_space()[action]
+        piece = self.game.board.get_all_pieces(self.own_color)[piece_idx]
+        #move and build
+        move_result = self.game.board.move_piece_in_direction(piece, move_dir)
+        build_result = self.game.board.build_in_direction(piece, build_dir)
+        #check win conditions and assign reward
+        reward = self.evaluate_reward(move_result, build_result)
+        next_state = self.get_cur_game_state()
+        done = self.game.is_game_over()
+        #remember and replay
+        self.remember(state, action, reward, next_state, done)
+        self.replay()
+        #update target model periodically
+        if self.game.move_count % 10 == 0:
+            self.update_target_model()
+    
+    def evaluate_reward(self, move_result, build_result):
+        reward = 0
+        if move_result == 'win':
+            reward += 100
+        elif build_result == 'block_opponent':
+            reward += 20
+        elif move_result == 'progress':
+            reward += 10
+        return reward
