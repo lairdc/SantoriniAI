@@ -5,10 +5,10 @@ import time  # Import time module
 
 
 
-from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from santoriniGame.game import Game
-from santoriniGame.bot import Bot
-from santoriniGame.YaseminsMiniMax import YaseminsMiniMax
+from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from game import Game
+from bot import Bot
+from YaseminsMiniMax import YaseminsMiniMax
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
 
@@ -114,8 +114,8 @@ def main():
         blue_player = None
         red_player = TylerMiniMax(game,RED,BLUE)
     else:
-        blue_player = Bot(game,BLUE,RED)
-        red_player = TylerMiniMax(game,RED,BLUE)
+        blue_player = ColbysMiniMax(game,BLUE,RED)
+        red_player = YaseminsMiniMax(game,RED,BLUE)
 
 
         num_games = 10

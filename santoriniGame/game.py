@@ -1,9 +1,6 @@
 import pygame
 
 
-<<<<<<< HEAD
-
-
 from pieces import Piece
 from board import Board
 from constants import *
