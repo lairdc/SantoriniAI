@@ -9,9 +9,8 @@ COLS = 5
 RED = (255, 0, 0)
 
 class Node:
-    def __init__(self, game):
-        self.game = game
-        self.board = self.board_to_dict(self.game.board)
+    def __init__(self, board):
+        self.board = board.copy()
         self.children = []
         self.visits = 0
         self.wins = 0
@@ -56,8 +55,37 @@ class TylerMCTS:
         best_child = max(node.children, key=lambda x: (x.wins / x.visits) + (2 * (2 * node.visits) ** 0.5 / x.visits))
         return best_child
 
-    def expand(self, node):
+    def simulate_move(self, board, move):
+        board_copy = board.copy()
 
+        starting_pos, move_pos, build_pos = move
+
+        color = board.tiles[starting_pos][1]  # Second value is the color
+
+        # Update the piece's position in the pieces dict
+        board_copy.pieces[color].remove(starting_pos)
+        board_copy.pieces[color].append(move_pos)
+
+        # Update the tile states
+        board_copy.tiles[starting_pos] = (board.tiles[starting_pos][0], None)  # Clear color from starting position
+        board_copy.tiles[move_pos] = (board.tiles[move_pos][0], color)  # Set color to the move position
+        board_copy.tiles[build_pos] = (
+        board.tiles[build_pos][0] + 1, board.tiles[build_pos][1])  # Increment build level
+        if board.tiles[move_pos][0] == 3:
+            return board_copy, True, True
+        elif (board.tiles[move_pos][0] == 1 or board.tiles[move_pos][0] == 0) and random.randint(0, 1) == 1:
+            return board_copy, False, True
+        return board_copy, False, False
+
+    def expand(self, node):
+        pieces = node.board.pieces[self.own_color]
+        for piece in pieces:
+            moves = node.board.get_all_moves(piece)
+            for move in moves:
+                new_board, winner, add = self.simulate_move(node.board, move)
+                if winner:
+                    node.wins += 1
+                node.children.append(new_board)
 
 
     def make_move(self):
