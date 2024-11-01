@@ -1,10 +1,7 @@
 import pygame
 
-<<<<<<< HEAD
 from santoriniGame.constants import *
-=======
 from constants import *
->>>>>>> main
 
 class Piece:
 	PADDING = 15
