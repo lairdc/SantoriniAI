@@ -22,11 +22,13 @@ export default function GamePage() {
         }
 
         return (
-            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${update}`} onClick={()=>{
-                if (!game.select(row, col)) {
-                    game.selected = null;
+            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${`${row}-${col}` in game.validMoves ? "game-space-valid" : ""} ${update}`} onClick={()=>{
+                if (!game.gameOver) {
+                     if (!game.select(row, col)) {
+                        game.selected = null;
+                    }
+                    forceUpdate(update+1);
                 }
-                forceUpdate(update+1);
             }}><Piece row={row} col={col}></Piece></button>
         );
     }
@@ -41,7 +43,7 @@ export default function GamePage() {
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
     return [
-        <span key="game-state">{game.turn}'s turn to {game.move ? "move" : "build"}</span>,
+        <span key="game-state">{game.gameOver ? `${game.gameOver} wins!` : `${game.turn}'s turn to ${game.move ? "move" : "build"}`}</span>,
         ...gridded
     ]
 }
