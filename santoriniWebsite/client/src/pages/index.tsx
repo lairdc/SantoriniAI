@@ -7,11 +7,6 @@ export default function IndexPage() {
     return (
         <div className="index-app">
             <header className="index-app-header">
-                <div className="rules-button-container">
-                    <Link to="/rules" className="rules-button">
-                        Rules
-                    </Link>
-                </div>
                 <h1>
                     <span className="welcome">Welcome to </span>
                     <span className="santorini">SantoriniAI</span>
@@ -31,8 +26,9 @@ export default function IndexPage() {
                             the power of Greek gods,
                             adding unique abilities that influence the flow of the game.
                         </p>
+                        <p><Link to="/rules" className="custom-link">Click here to view Rules</Link></p>
                     </div>
-
+                    
                     <div className="button-container">
                         <button onClick={() => alert('Playing against a friend')}>
                             Play Against Friend
