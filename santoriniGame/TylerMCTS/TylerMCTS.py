@@ -4,9 +4,14 @@ from santoriniGame.pieces import Piece
 from .DictBoard import *
 from collections import defaultdict
 
+ROWS = 5
+COLS = 5
+RED = (255, 0, 0)
+
 class Node:
-    def __init__(self, board):
-        self.board = board.copy()
+    def __init__(self, game):
+        self.game = game
+        self.board = self.board_to_dict(self.game.board)
         self.children = []
         self.visits = 0
         self.wins = 0
@@ -17,19 +22,12 @@ class Node:
         child_node.parent = self
         self.children.append(child_node)
 
-class TylerMCTS:
-    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int], root):
-        self.game = game
-        self.own_color = own_color
-        self.opp_color = opp_color
-        self.root = root
-
     def board_to_dict(self, old_board):
         dict_board = DictBoard()
         # key is coordinate tuple (0,0) or (2,3) etc
         # value is tuple of (tile level, piece) example: (1, None) or (2, "RED")
-        for row in range(5):
-            for col in range(5):
+        for row in range(ROWS):
+            for col in range(COLS):
                 tile_level = old_board.get_tile_level(row, col)
                 piece = old_board.get_piece(row, col)
                 if piece:
@@ -46,13 +44,21 @@ class TylerMCTS:
 
         return dict_board
 
+class TylerMCTS:
+    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int], root):
+        self.game = game
+        self.own_color = own_color
+        self.opp_color = opp_color
+        self.root = root
+
     def select(self, node):
         # Select node with highest UCT value.
         best_child = max(node.children, key=lambda x: (x.wins / x.visits) + (2 * (2 * node.visits) ** 0.5 / x.visits))
         return best_child
 
     def expand(self, node):
-        # Makes new nodes each with a board that contains every possible move and build combination that can be done.
+
+
 
     def make_move(self):
         own_pieces = self.game.board.get_all_pieces(self.own_color)
