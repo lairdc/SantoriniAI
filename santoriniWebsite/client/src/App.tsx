@@ -1,26 +1,20 @@
-import React from 'react';
-import './fonts.css';
-import './App.css'; 
+import { BrowserRouter, Route, Routes, Link} from "react-router-dom";
+import IndexPage from "./pages/index";
+import RulesPage from "./pages/rules";
+import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-      <h1>
-        <span className="welcome">Welcome to </span>
-        <span className="santorini">SantoriniAI</span>
-        <span className="welcome"> Board Game!</span>
-      </h1>
-      </header>
-        <div className="button-container">
-          <button onClick={() => alert('Playing against a friend')}>
-            Play Against Friend
-          </button>
-          <button onClick={() => alert('Playing against AI')}>
-            Play Against AI
-          </button>
-        </div>
-    </div>
+      <BrowserRouter>
+        <nav className="nav-bar">
+          <Link to="/" className="nav-button">Home</Link>
+          <Link to="/rules" className="nav-button">Rules</Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<IndexPage />}></Route>
+          <Route path="/rules" element={<RulesPage />} /> 
+        </Routes>
+      </BrowserRouter>
   );
 }
 

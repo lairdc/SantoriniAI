@@ -8,6 +8,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
@@ -28,17 +29,13 @@
     "typescript-eslint": "^8.7.0",
     "vite": "^5.4.8"
   },
-  "overrides": {
-    "react-scripts": {
-      "typescript": "^5"
-    }
-  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "pnpm dev"
   },
   "eslintConfig": {
     "extends": [
