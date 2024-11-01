@@ -1,0 +1,33 @@
+.game-row {
+    max-height: 160px;
+}
+
+.game-space {
+    width: 160px;
+    height: 160px;
+    max-width: 160px;
+    max-height: 160px;
+    margin: auto;
+}
+
+.game-space-built-0 {
+    background-color: orange;
+}
+
+.game-space-built-1 {
+    background-color: yellow;
+}
+
+.game-space-built-2 {
+    background-color: green;
+}
+
+.game-space-built-3 {
+    background-color: purple;
+}
+
+.piece {
+    display: inline-block;
+    position: absolute;
+    text-align: center;
+}
