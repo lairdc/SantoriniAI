@@ -8,7 +8,7 @@ export class Game {
     turn: Color;
     private validMoves: { [key: string]: number };
     move: boolean;
-    private gameOver: string | null;
+    gameOver: string | null;
 
     constructor() {
         this.selected = null;
