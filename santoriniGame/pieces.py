@@ -2,6 +2,7 @@ import pygame
 
 from constants import *
 
+
 class Piece:
 	PADDING = 15
 	BORDER = 2
@@ -19,6 +20,11 @@ class Piece:
 	def calc_pos(self):
 		self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
 		self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
+	def get_x(self):
+		return self.row
+
+	def get_y(self):
+		return self.col
 
 	def draw(self, win: pygame.SurfaceType):
 		pygame.draw.circle(win, self.color, (self.x, self.y), PIECE_SIZE)

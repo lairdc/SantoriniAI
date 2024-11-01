@@ -1,16 +1,26 @@
 import pygame
+import copy
 
 from constants import *
 from pieces import Piece
 
+
 HIGHLIGHT_COLOR = (0, 255, 0, 128)  # Green with some transparency
 #test
 class Board:
+
+
+
     def __init__(self):
         self.board: list[Piece] = []  # 1-D list of pieces
         self.tile_levels = [[0 for _ in range(COLS)] for _ in range(ROWS)]  # Track tile levels
         self.create_board()
-        self.font = pygame.font.SysFont(None, 36)  # Font for displaying tile levels
+        #self.font = pygame.font.SysFont(None, 36)  # Font for displaying tile levels
+
+
+    def copy(self):
+        return copy.deepcopy(self)
+
 
     def draw(self, win: pygame.SurfaceType, valid_moves: dict[tuple[int, int], int] = None):
         win.fill(GREEN)
@@ -59,7 +69,6 @@ class Board:
             if piece.row == row and piece.col == col:
                 return piece
         return None
-
     def create_board(self):
         # Create blue pieces in the corners
         self.board.append(Piece(1, 1, BLUE))  # Top-left corner
