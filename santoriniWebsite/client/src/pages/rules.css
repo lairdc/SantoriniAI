@@ -1,0 +1,21 @@
+
+body {
+    background-color: #e3cba9; 
+    }
+
+.rules-app {
+    text-align: center; 
+    color: black;
+    max-width: 1050px; 
+    margin: 0 auto;
+  }
+  
+.rules-app-header{
+    text-align: center;
+  }
+
+.rules-content {
+    text-align: left;
+}
+
+
