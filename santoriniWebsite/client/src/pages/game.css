@@ -73,3 +73,9 @@
     position: absolute;
     text-align: center;
 }
+
+.game-space-valid {
+    outline: none;
+    border-color: #ffdc00;
+    box-shadow: 0 0 10px #ffdc00;
+}
