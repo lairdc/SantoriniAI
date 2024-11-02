@@ -1,7 +1,7 @@
 import '../fonts.css';
 import {Game} from "../game/game.ts";
 import {COLS, ROWS} from "../game/constants.ts";
-import {createContext, ReactElement, useContext, useState} from "react";
+import {createContext, ReactElement, useContext, useState, useEffect } from "react";
 import "./game.css";
 
 const GameContext = createContext<Game>(new Game());
@@ -11,12 +11,19 @@ export default function GamePage() {
     const [update, forceUpdate] = useState(1);
     const game = useContext(GameContext);
 
+    const [instructions, setInstructions] = useState<string[]>([]);
+
+    useEffect(() => {
+        const newInstruction = `${game.turn}'s turn to ${game.move ? "move" : "build"}`;
+        setInstructions(prev => [newInstruction, ...prev.slice(0, 4)]); 
+    }, [game.turn, game.move]);
+
     function Space({row, col}: {row: number, col: number}) {
         function Piece({row, col}: { row: number, col: number}) {
             const piece = game.board.getPiece(row, col);
             return (
                 <div className={`piece ${piece?.color} ${update}`} style={
-                     piece?.color ? {color: piece.color} : {display: "none", update}
+                     piece?.color ? {color: piece.color} : {display: "none"}
                 }>&#9632;</div>
             );
         }
@@ -40,8 +47,22 @@ export default function GamePage() {
 
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
-    return [
-        <span key="game-state">{game.turn}'s turn to {game.move ? "move" : "build"}</span>,
-        ...gridded
-    ]
+    function InstructionsHistory() {
+        return (
+            <div className="instructions-history">
+                {instructions.map((instruction, index) => (
+                    <div key={index} className={`instruction ${index === 0 ? "current" : "old"}`}>
+                        {instruction}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className="game-container">
+            <div className="game-board">{gridded}</div>
+            <InstructionsHistory />
+        </div>
+    );
 }
