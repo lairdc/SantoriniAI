@@ -7,16 +7,32 @@ import "./game.css";
 const GameContext = createContext<Game>(new Game());
 
 export default function GamePage() {
+    // these are the React buttons for individual spaces in [row][col] indexing
     const spaces: ReactElement[][] = [];
+    // this is a hack to update the board, since we reuse the same context over, React doesn't push updates
     const [update, forceUpdate] = useState(1);
+    
     const game = useContext(GameContext);
 
-    const [instructions, setInstructions] = useState<string[]>([]);
+    // this is a bounded queue of size 5
+    const [instructionHistory, setInstructionHistory] = useState<string[]>([]);
 
     useEffect(() => {
         const newInstruction = `${game.gameOver ? `${game.gameOver} wins!` : `${game.turn[0].toUpperCase() + game.turn.substring(1)}'s turn to ${game.move ? "move" : "build"}`}`;
-        setInstructions(prev => [newInstruction, ...prev.slice(0, 4)]);
+        setInstructionHistory(prev => [newInstruction, ...prev.slice(0, 4)]);
     }, [game.turn, game.move]);
+
+    function InstructionsHistory() {
+        return (
+            <div className="instructions-history">
+                {instructionHistory.map((instruction, index) => (
+                    <div key={index} className={`instruction ${index === 0 ? "current" : "old"}`}>
+                        {instruction}
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     function Space({row, col}: {row: number, col: number}) {
         function Piece({row, col}: { row: number, col: number}) {
@@ -40,6 +56,7 @@ export default function GamePage() {
         );
     }
 
+    // create the Space elements for each spot in the grid
     for (let i = 0; i < ROWS; i++) {
         for (let j = 0; j < COLS; j++) {
             if (!spaces[i]) spaces.push([]);
@@ -47,19 +64,8 @@ export default function GamePage() {
         }
     }
 
+    // put all the spaces in the same row in a shared div
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
-
-    function InstructionsHistory() {
-        return (
-            <div className="instructions-history">
-                {instructions.map((instruction, index) => (
-                    <div key={index} className={`instruction ${index === 0 ? "current" : "old"}`}>
-                        {instruction}
-                    </div>
-                ))}
-            </div>
-        );
-    }
 
     return (
         <div className="game-container">
