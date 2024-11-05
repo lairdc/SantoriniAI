@@ -14,7 +14,7 @@ export default function GamePage() {
     const [instructions, setInstructions] = useState<string[]>([]);
 
     useEffect(() => {
-        const newInstruction = `${game.turn}'s turn to ${game.move ? "move" : "build"}`;
+        const newInstruction = `${game.gameOver ? `${game.gameOver} wins!` : `${game.turn}'s turn to ${game.move ? "move" : "build"}`}`;
         setInstructions(prev => [newInstruction, ...prev.slice(0, 4)]); 
     }, [game.turn, game.move]);
 
@@ -49,7 +49,6 @@ export default function GamePage() {
 
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
-<<<<<<< HEAD
     function InstructionsHistory() {
         return (
             <div className="instructions-history">
@@ -68,10 +67,4 @@ export default function GamePage() {
             <InstructionsHistory />
         </div>
     );
-=======
-    return [
-        <span key="game-state">{game.gameOver ? `${game.gameOver} wins!` : `${game.turn}'s turn to ${game.move ? "move" : "build"}`}</span>,
-        ...gridded
-    ]
->>>>>>> e42ddcd397cbf3f9b981c20399753f06e9ed14f2
 }
