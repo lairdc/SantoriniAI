@@ -71,6 +71,12 @@ export default function GamePage() {
         <div className="game-container">
             <div className="game-board">{gridded}</div>
             <InstructionsHistory />
+            <br />
+            <button onClick={()=>{
+                setInstructionHistory([]);
+                game.reset();
+                forceUpdate(update+1)
+            }}>Reset</button>
         </div>
     );
 }
