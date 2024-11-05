@@ -14,8 +14,8 @@ export default function GamePage() {
     const [instructions, setInstructions] = useState<string[]>([]);
 
     useEffect(() => {
-        const newInstruction = `${game.gameOver ? `${game.gameOver} wins!` : `${game.turn}'s turn to ${game.move ? "move" : "build"}`}`;
-        setInstructions(prev => [newInstruction, ...prev.slice(0, 4)]); 
+        const newInstruction = `${game.gameOver ? `${game.gameOver} wins!` : `${game.turn[0].toUpperCase() + game.turn.substring(1)}'s turn to ${game.move ? "move" : "build"}`}`;
+        setInstructions(prev => [newInstruction, ...prev.slice(0, 4)]);
     }, [game.turn, game.move]);
 
     function Space({row, col}: {row: number, col: number}) {
