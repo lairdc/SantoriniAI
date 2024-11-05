@@ -110,14 +110,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = YaseminsMCTS(game, BLUE, RED)
+        blue_player = YaseminsMiniMax(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = YaseminsMCTS(game,RED,BLUE)
+        red_player = YaseminsMiniMax(game,RED,BLUE)
     else:
         blue_player = Bot(game,BLUE,RED)
-        red_player = YaseminsMCTS(game,RED,BLUE)
+        red_player = YaseminsMiniMax(game,RED,BLUE)
 
 
         num_games = 10
