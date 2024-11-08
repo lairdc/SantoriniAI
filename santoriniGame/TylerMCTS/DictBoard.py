@@ -94,3 +94,21 @@ class DictBoard:
 				all_moves.append([(starting_row, starting_col), (move_row, move_col), (build_row, build_col)])
 
 		return all_moves
+
+	def is_game_over(self, own_pieces, opp_pieces):
+		for piece in own_pieces:
+			if self.tiles[piece][0] == 3:
+				return True
+		for piece in opp_pieces:
+			if self.tiles[piece][0] == 3:
+				return True
+		return False
+
+	def result(self, own_pieces, opp_pieces):
+		for piece in own_pieces:
+			if self.tiles[piece][0] == 3:
+				return 1
+		for piece in opp_pieces:
+			if self.tiles[piece][0] == 3:
+				return -1
+		return 0
