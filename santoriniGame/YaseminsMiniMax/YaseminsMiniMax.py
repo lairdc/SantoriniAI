@@ -137,7 +137,7 @@ class YaseminsMiniMax:
         score = 0
         move_r, move_c = move
         build_r, build_c = build
-        build_bias = 2 # Increase to bias priority towards proximity to higher tiered buildings
+        build_bias = 2.2 # Increase to bias priority towards proximity to higher tiered buildings
 
         # Prioritize winning the game above all else
         #print(f"Checking {move_r}, {move_c} with value {self.game.board.tile_levels[move_r][move_c]}")
