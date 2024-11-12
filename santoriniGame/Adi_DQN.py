@@ -6,6 +6,67 @@ import torch.optim as optim
 from collections import deque
 
 
+class Bot:
+    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int], use_dqn=False):
+        self.game = game
+        self.own_color = own_color
+        self.opp_color = opp_color
+        
+        if use_dqn:
+            self.agent = DQNSantoriniAgent(
+                game=game,
+                own_color=own_color,
+                opp_color=opp_color,
+                state_size=100,
+                action_size=128
+            )
+            self.use_dqn = True
+        else:
+            self.use_dqn = False
+
+    def make_move(self):
+        if self.use_dqn:
+            self.agent.step()
+        else:
+            self._make_random_move()
+
+    def _make_random_move(self):
+        own_pieces = self.game.board.get_all_pieces(self.own_color)
+        if not own_pieces:
+            return
+
+        piece = random.choice(own_pieces)
+        valid_moves = self.game.board.get_valid_moves(piece)
+
+        if valid_moves:
+            move = random.choice(list(valid_moves))
+            row, col = move
+            if self.game.select(piece.row, piece.col):
+                self.game._move(row, col)
+                
+                valid_builds = self.game.board.get_valid_builds(self.game.selected)
+                if valid_builds:
+                    build = random.choice(list(valid_builds))
+                    build_row, build_col = build
+                    self.game._build(build_row, build_col)
+                self.game.selected = None
+
+    def get_cur_game_state(self):
+        curGameState = []
+        for row in range(5):
+            for col in range(5):
+                level = self.game.board.get_tile_level(row, col)
+                piece = self.game.board.get_piece(row, col)
+                piece_present = 0
+                if piece:
+                    if piece.color == self.own_color:
+                        piece_present = 1
+                    elif piece.color == self.opp_color:
+                        piece_present = 2
+                curGameState.extend([row, col, level, piece_present])
+        return curGameState
+
+
 # Key Steps for the DQN Algorithm
 
 #1.	state representation: encode the board state into a format compatible with the neural network
@@ -187,22 +248,7 @@ class DQNSantoriniAgent:
                 self.game.board.get_tile_level(row, col) < 4 and 
                 not self.game.board.get_piece(row, col))
 
-    def evaluate_reward(self, move_result, build_result):
-        reward = 0
-        if move_result == 'win':
-            reward += 100
-        elif build_result == 'block_opponent':
-            reward += 20
-        elif move_result == 'progress':
-            reward += 10
-            
-        # Added additional reward components
-        state = self.get_cur_game_state()
-        height_reward = sum(self.calculate_height_differences()) * 2
-        center_penalty = sum(self.calculate_distances_to_center()) * -1
-        reward += height_reward + center_penalty
-        
-        return reward
+    
 
     def get_action_space(self):
         #create a simplified action space, for example:
@@ -212,21 +258,53 @@ class DQNSantoriniAgent:
     def step(self):
         state = self.get_cur_game_state()
         action = self.act(state)
-        # Modified action unpacking for new action space
         piece_idx = action // 64
         move_dir = (action % 64) // 8
         build_dir = action % 8
         
-        piece = self.game.board.get_all_pieces(self.own_color)[piece_idx]
-        move_result = self.game.board.move_piece_in_direction(piece, move_dir)
-        build_result = self.game.board.build_in_direction(piece, build_dir)
+        # Get the selected piece
+        own_pieces = self.game.board.get_all_pieces(self.own_color)
+        if not own_pieces or piece_idx >= len(own_pieces):
+            return
+            
+        piece = own_pieces[piece_idx]
         
-        reward = self.evaluate_reward(move_result, build_result)
+        # Select the piece
+        if not self.game.select(piece.row, piece.col):
+            return
+            
+        # Calculate new position based on move direction
+        new_row = piece.row + [-1, -1, 0, 1, 1, 1, 0, -1][move_dir]
+        new_col = piece.col + [0, 1, 1, 1, 0, -1, -1, -1][move_dir]
+        
+        # Make the move
+        if not self.game._move(new_row, new_col):
+            self.game.selected = None
+            return
+            
+        # Calculate build position
+        build_row = new_row + [-1, -1, 0, 1, 1, 1, 0, -1][build_dir]
+        build_col = new_col + [0, 1, 1, 1, 0, -1, -1, -1][build_dir]
+        
+        # Make the build
+        self.game._build(build_row, build_col)
+        self.game.selected = None
+        
+        # Get reward and next state
+        reward = self.evaluate_reward()
         next_state = self.get_cur_game_state()
-        done = self.game.is_game_over()
+        done = self.game.winner() is not None
         
+        # Store experience and train
         self.remember(state, action, reward, next_state, done)
         self.replay()
+
+    def evaluate_reward(self):
+        reward = 0
+        if self.game.winner() == self.own_color:
+            reward += 100
+        # Add other reward conditions based on your game state
+        return reward
     
 
 

@@ -95,30 +95,28 @@ def main():
     clock = pygame.time.Clock()
     game = Game(WIN)
 
-    # Initialize bots for Bot VS Bot mode
+    # Initialize bots for different modes
     if game_mode == "PvP":
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = ColbysMiniMax(game, BLUE, RED)
+        blue_player = Bot(game, BLUE, RED, use_dqn=True)  # Use DQN for blue
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = ColbysMiniMax(game,RED,BLUE)
-    else:
-        blue_player = Bot(game,BLUE,RED)
-        red_player = ColbysMiniMax(game,RED,BLUE)
+        red_player = Bot(game, RED, BLUE, use_dqn=True)  # Use DQN for red
+    else:  # CvC
+        blue_player = Bot(game, BLUE, RED, use_dqn=True)  # DQN vs Random
+        red_player = Bot(game, RED, BLUE, use_dqn=False)
 
     while run:
         clock.tick(FPS)
 
-        # Check if the game is over
         if game.game_over is not None:
             game.game_over = None
             game.reset()
             game.update()
 
-        # Check for user events like quitting or clicking
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -126,11 +124,10 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and game_mode != "CvC":
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
-                # Select or move piece based on current game state
                 if not game.select(row, col):
-                    game.selected = None  # Reset selected piece
+                    game.selected = None
 
-        # Let the bots make their moves if it's the bot's turn
+        # Bot moves
         if game_mode == "PvC" and game.turn == RED:
             red_player.make_move()
         elif game_mode == "CvP" and game.turn == BLUE:
@@ -141,11 +138,9 @@ def main():
             else:
                 blue_player.make_move()
 
-
-        # Update the display
         game.update()
 
     pygame.quit()
 
 if __name__ == "__main__":
-    main()  # Call the main function to start the game
+    main()
