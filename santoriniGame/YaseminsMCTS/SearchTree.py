@@ -1,4 +1,5 @@
 import pickle
+import math
 
 class SearchTree:
     def __init__(self):
@@ -34,6 +35,12 @@ class TreeNode:
 
     def add_child(self, child_node):
         self.children.append(child_node)
+
+     def ucb1(self, exploration_param=1.41):
+        # Calculate the Upper Confidence Bound (UCB1) score
+        if self.visits == 0:
+            return float('inf')  # Prefer unvisited nodes
+        return (self.wins / self.matches) + exploration_param * math.sqrt(math.log(self.parent.matches) / self.matches)
 
     def backpropogate(self, win):
         if win:
