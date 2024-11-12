@@ -1,5 +1,6 @@
 import pickle
 import math
+import os
 
 class SearchTree:
     def __init__(self):
@@ -13,12 +14,16 @@ class SearchTree:
         return self.current
 
     def save_tree(self, filename='search_tree.pkl'):
-        with open(filename, 'wb') as file:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        full_path = os.path.join(base_dir, filename)
+        with open(full_path, 'wb') as file:
             pickle.dump(self.root, file)
 
     def load_tree(self, filename='search_tree.pkl'):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        full_path = os.path.join(base_dir, filename)
         try:
-            with open(filename, 'rb') as file:
+            with open(full_path, 'rb') as file:
                 self.root = pickle.load(file)
         except FileNotFoundError:
             # Load an empty tree if no saved data exists
