@@ -37,6 +37,12 @@ class TreeNode:
     def add_child(self, child_node):
         self.children.append(child_node)
 
+    def has_child(self, node):
+        for child in children:
+            if child == node:
+                return True
+        return False
+
     def ucb1(self, exploration_param=1.41):
         if parent == None:
             return None
