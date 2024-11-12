@@ -17,9 +17,16 @@ class Node:
         self.parent = None
         self.move = None
 
-    def add_child(self, child_node, child_move):
+    def add_child(self, child_node):
         child_node.parent = self
         self.children.append(child_node)
+
+class TylerMCTS:
+    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
+        self.game = game
+        self.own_color = own_color
+        self.opp_color = opp_color
+        self.root = Node(self.board_to_dict(game.board))
 
     def board_to_dict(self, old_board):
         dict_board = DictBoard()
@@ -42,13 +49,6 @@ class Node:
                 dict_board.tiles[(row, col)] = (tile_level, piece_info)
 
         return dict_board
-
-class TylerMCTS:
-    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int], root):
-        self.game = game
-        self.own_color = own_color
-        self.opp_color = opp_color
-        self.root = root
 
     def select(self, node):
         # Select node with highest UCT value
@@ -86,7 +86,9 @@ class TylerMCTS:
                 new_board, winner = self.simulate_move(node.board, move)
                 if winner:
                     node.wins += 1
-                node.children.append(new_board, move)
+                child_node = Node(new_board)
+                child_node.move = move
+                node.add_append(child_node)
 
     def simulate(self, node):
         # Simulate by playing random moves until the game ends
@@ -129,21 +131,29 @@ class TylerMCTS:
         # Backpropagation
         self.backpropagate(node, result)
 
-    def make_move(self):
-        own_pieces = self.game.board.get_all_pieces(self.own_color)
+    def make_move(self, num_simulations=100):
+        # Run MCTS simulations
+        for _ in range(num_simulations):
+            self.run_simulation()
 
-        if not own_pieces:
-            return  # No pieces to move
+        # No moves
+        if not self.root.children:
+            return
+        # Select the child with the best win rate and highest visit count
+        best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
 
-        action = self.get_best_action(self.game.board)
+        action = best_child.move
+        if action is None:
+            return
 
-        if action is not None:
-            piece = own_pieces[action[0]]
-            move_x, move_y = action[1], action[2]
-            build_x, build_y = action[3], action[4]
+        # Unpack the move information
+        move_x, move_y = action[1]
+        build_x, build_y = action[2]
 
-            if self.game.select(piece.row, piece.col):  # Select piece
-                self.game._move(move_x, move_y)  # Move piece
-                self.game._build(build_x, build_y)  # Build after move
+        # Execute the move on the game board
+        piece_row, piece_col = action[0]  # Starting position of the piece
+        if self.game.select(piece_row, piece_col):  # Select piece
+            self.game._move(move_x, move_y)  # Move piece
+            self.game._build(build_x, build_y)  # Build after move
 
         self.game.selected = None  # Deselect after move and build
