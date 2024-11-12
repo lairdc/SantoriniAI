@@ -37,6 +37,8 @@ class TreeNode:
         self.children.append(child_node)
 
      def ucb1(self, exploration_param=1.41):
+        if parent == None:
+            return None
         # Calculate the Upper Confidence Bound (UCB1) score
         if self.visits == 0:
             return float('inf')  # Prefer unvisited nodes
