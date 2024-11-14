@@ -8,9 +8,9 @@ from DeepQ import DeepQ
 
 class Agent:
     def __init__(self, deep_q, action_size, batch_size=32):
-        self.deep_q = deep_q
+        self.deep_q = deep_q #deepQ class
         self.action_size = action_size  # Number of possible actions
-        self.batch_size = batch_size
+        self.batch_size = batch_size #batch size - 
 
     def act(self, state):
         # Epsilon-greedy policy for exploration and exploitation

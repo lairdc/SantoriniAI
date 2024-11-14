@@ -4,6 +4,61 @@ import torch.optim as optim
 import random
 from collections import deque
 
+'''
+5 x 5 x 2 starting board:
+
+	[[[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],
+	 [[0, 0],[0, 1],[0, 0],[0, 1],[0, 0]],
+	 [[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],
+	 [[0, 0],[0,-1],[0, 0],[0,-1],[0, 0]],
+	 [[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]]]
+
+8 x 8 output:
+
+	[[0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0],
+	 [0, 0, 0, 0, 0, 0, 0, 0]]
+
+where row represents move direction, and col represents build direction.
+0 = Up
+1 = Up & Right
+2 = Right
+3 = Down & Right
+4 = Down
+5 = Down & Left
+6 = Left
+7 = Up & Left
+'''
+
+class DQNModel(nn.Module):
+	'''
+	USING DQNModel
+	input_dim = 5 * 5 * 2
+	output_dim = 8 * 8 
+
+	model = DQNModel(input_dim, output_dim)
+	target_model = DQNModel(input_dim, output_dim)
+	target_model.load_state_dict(model.state_dict())
+
+	# Initialize DeepQ
+	deep_q = DeepQ(model=model, target_model=target_model)
+	'''
+    def __init__(self, input_dim, output_dim):
+        super(DQNModel, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, output_dim)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+
 class DeepQ(nn.Module):
     def __init__(self, model, target_model, memory_size=2000, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001):
         super(DeepQ, self).__init__()
@@ -23,8 +78,6 @@ class DeepQ(nn.Module):
 
     def act(self, state):
         """Select an action based on epsilon-greedy strategy."""
-        if random.random() < self.epsilon:
-            return random.randint(0, 63)  # Random action (assuming 8x8 flattened output space)
         state = T.tensor(state, dtype=T.float32).unsqueeze(0)
         q_values = self.model(state)  # Predict Q-values for all actions
         return T.argmax(q_values).item()  # Choose the action with the highest Q-value
