@@ -37,8 +37,7 @@ class Board:
 
                 # Highlight valid moves
                 if valid_moves and (row, col) in valid_moves:
-                    pygame.draw.circle(win, HIGHLIGHT_COLOR,
-                                       (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2), 10)
+                    pygame.draw.circle(win, HIGHLIGHT_COLOR, (x + SQUARE_SIZE // 2, y + SQUARE_SIZE // 2), 10)
 
         # Draw the pieces
         for piece in self.board:

@@ -301,10 +301,61 @@ class DQNSantoriniAgent:
 
     def evaluate_reward(self):
         reward = 0
+        # Win/Loss zrewards
         if self.game.winner() == self.own_color:
-            reward += 100
-        # Add other reward conditions based on your game state
+            return 100  #immediate win is best reward
+        elif self.game.winner() == self.opp_color:
+            return -100  #immediate loss is worst reward
+        board = self.game.board
+        own_pieces = board.get_all_pieces(self.own_color)
+        opp_pieces = board.get_all_pieces(self.opp_color)
+        for piece in own_pieces:
+            row, col = piece.position
+            current_level = board.get_tile_level(row, col)
+            reward += current_level * 5  # More points for being higher
+            #extra reward for being on level 2 (one move away from winning)
+            if current_level == 2:
+                reward += 10
+            #check for potential winning moves
+            for dr, dc in [(0,1), (1,1), (1,0), (1,-1), (0,-1), (-1,-1), (-1,0), (-1,1)]:
+                new_row, new_col = row + dr, col + dc
+                if 0 <= new_row < 5 and 0 <= new_col < 5:
+                    if board.get_tile_level(new_row, new_col) == 3:
+                        if not board.get_piece(new_row, new_col):
+                            reward += 15
+        #penalize for opponent's good positions
+        for piece in opp_pieces:
+            row, col = piece.position
+            opp_level = board.get_tile_level(row, col)  
+            #penalize for opponent height
+            reward -= opp_level * 3
+            #extra penalty if opponent is on level 2
+            if opp_level == 2:
+                reward -= 8
+            #check if opponent has potential winning moves
+            for dr, dc in [(0,1), (1,1), (1,0), (1,-1), (0,-1), (-1,-1), (-1,0), (-1,1)]:
+                new_row, new_col = row + dr, col + dc
+                if 0 <= new_row < 5 and 0 <= new_col < 5:
+                    if board.get_tile_level(new_row, new_col) == 3:
+                        if not board.get_piece(new_row, new_col):
+                            reward -= 15  #big penalty if opponent can win
+        #strategic position rewards
+        center_control = 0
+        center_positions = [(2,2), (1,2), (2,1), (2,3), (3,2)]
+        for row, col in center_positions:
+            piece = board.get_piece(row, col)
+            if piece and piece.color == self.own_color:
+                center_control += 1
+            elif piece and piece.color == self.opp_color:
+                center_control -= 1
+        reward += center_control * 2  #reward for controlling center
+        #reeward for keeping workers close to each other
+        if len(own_pieces) == 2:
+            p1_row, p1_col = own_pieces[0].position
+            p2_row, p2_col = own_pieces[1].position
+            distance = abs(p1_row - p2_row) + abs(p1_col - p2_col)
+            if distance <= 2:  #workers supporting each other
+                reward += 5
         return reward
-    
 
 
