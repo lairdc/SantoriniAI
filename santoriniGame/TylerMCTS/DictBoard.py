@@ -95,20 +95,22 @@ class DictBoard:
 
 		return all_moves
 
-	def is_game_over(self, own_pieces, opp_pieces):
-		for piece in own_pieces:
+	def is_game_over(self):
+		# Check if any piece has reached the target tile for either player
+		for piece in self.pieces['RED']:
 			if self.tiles[piece][0] == 3:
 				return True
-		for piece in opp_pieces:
+		for piece in self.pieces['BLUE']:
 			if self.tiles[piece][0] == 3:
 				return True
 		return False
 
-	def result(self, own_pieces, opp_pieces):
-		for piece in own_pieces:
+	def result(self):
+		# Determine the result of the game based on piece positions
+		for piece in self.pieces['RED']:
 			if self.tiles[piece][0] == 3:
-				return 1
-		for piece in opp_pieces:
+				return 'RED'
+		for piece in self.pieces['BLUE']:
 			if self.tiles[piece][0] == 3:
-				return -1
-		return 0
+				return 'BLUE'
+		return None  # No winner yet

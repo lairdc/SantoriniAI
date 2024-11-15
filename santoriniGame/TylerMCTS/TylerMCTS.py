@@ -7,12 +7,14 @@ from collections import defaultdict
 ROWS = 5
 COLS = 5
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
 
 class Node:
     def __init__(self, board):
         self.board = board.copy()
         self.children = []
-        self.visits = 0
+        self.visits = 1
         self.wins = 0
         self.parent = None
         self.move = None
@@ -50,6 +52,18 @@ class TylerMCTS:
 
         return dict_board
 
+    def str_to_color(self, str):
+        if str == 'RED':
+            return RED
+        else:
+            return BLUE
+
+    def tuple_to_str(self, color):
+        if color == (255,0,0):
+            return 'RED'
+        else:
+            return 'BLUE'
+
     def select(self, node):
         # Select node with highest UCT value
         best_child = max(node.children, key=lambda x: (x.wins / x.visits) + (2 * (2 * node.visits) ** 0.5 / x.visits))
@@ -79,7 +93,7 @@ class TylerMCTS:
 
     def expand(self, node):
         # Create children for each possible move and build
-        pieces = node.board.pieces[self.own_color]
+        pieces = node.board.pieces[self.tuple_to_str(self.own_color)]
         for piece in pieces:
             moves = node.board.get_all_moves(piece)
             for move in moves:
@@ -88,20 +102,29 @@ class TylerMCTS:
                     node.wins += 1
                 child_node = Node(new_board)
                 child_node.move = move
-                node.add_append(child_node)
+                node.add_child(child_node)
 
     def simulate(self, node):
         # Simulate by playing random moves until the game ends
         board_copy = node.board.copy()
-        while not board_copy.is_game_over(board_copy.pieces[self.own_color], board_copy.pieces[self.opp_color]):
-            pieces = board_copy.pieces[self.own_color]
+        while not board_copy.is_game_over():
+            pieces = board_copy.pieces[self.tuple_to_str(self.own_color)]
             # Choosing random move
             piece = random.choice(pieces)
+            all_moves = board_copy.get_all_moves(piece)
+            if len(all_moves) == 0:
+                return 0
             move = random.choice(board_copy.get_all_moves(piece))
             board_copy, winner = self.simulate_move(board_copy, move)
             if winner:
                 return 1
-        return board_copy.result(board_copy.pieces[self.own_color], board_copy.pieces[self.opp_color])
+        resultColor = self.str_to_color(board_copy.result())
+        if resultColor is None:
+            return 0
+        elif resultColor == self.own_color:
+            return 1
+        else:
+            return -1
 
     def backpropagate(self, node, result):
         # Backpropagate results up the tree
