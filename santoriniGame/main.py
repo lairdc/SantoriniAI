@@ -5,9 +5,9 @@ import time  # Import time module
 
 
 
-from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from game import Game
-from bot import Bot
+from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from santoriniGame.game import Game
+from santoriniGame.randombot import RandomBot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
@@ -115,7 +115,7 @@ def main():
         blue_player = None
         red_player = YaseminsMiniMax(game,RED,BLUE)
     else:
-        blue_player = Bot(game,BLUE,RED)
+        blue_player = RandomBot(game, BLUE, RED)
         red_player = YaseminsMiniMax(game,RED,BLUE)
 
 
