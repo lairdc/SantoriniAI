@@ -2,6 +2,7 @@ from typing import Tuple
 from uuid import uuid4, UUID
 
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from santoriniGame.ColbysMiniMax.ColbysMiniMax import ColbysMiniMax
@@ -12,6 +13,13 @@ from santoriniGame.randombot import RandomBot
 from santoriniWebsite.server.remotegame import RemoteGame
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 games: dict[UUID, RemoteGame] = {}
 bots = {
