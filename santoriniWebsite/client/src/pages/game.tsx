@@ -30,6 +30,9 @@ export default function GamePage() {
                         {instruction}
                     </div>
                 ))}
+                <div className="instructions-tip">
+                    Tip: For each turn, you must click on a tiny square of your color before clicking on the surrounding squares
+                </div>
             </div>
         );
     }
@@ -70,13 +73,16 @@ export default function GamePage() {
     return (
         <div className="game-container">
             <div className="game-board">{gridded}</div>
-            <InstructionsHistory />
-            <br />
-            <button onClick={()=>{
-                setInstructionHistory([]);
-                game.reset();
-                forceUpdate(update+1)
-            }}>Reset</button>
+            <div className="instructions-container">
+                
+                <InstructionsHistory />
+                <br />
+                <button className="reset-button" onClick={() => {
+                    setInstructionHistory([]);
+                    game.reset();
+                    forceUpdate(update+1)
+                }}>Reset</button>
+            </div>
         </div>
     );
 }
