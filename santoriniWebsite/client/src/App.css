@@ -13,8 +13,13 @@ code {
 }
 
 .nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   display: flex;
-  justify-content:flex-end; 
+  justify-content:center; 
   padding: 0px;
   background-color: #25416b; 
 }
@@ -34,4 +39,8 @@ code {
 
 .nav-button:hover {
   background-color: #14d0e3; 
+}
+
+.main-content {
+  padding-top: 35px; 
 }
