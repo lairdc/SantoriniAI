@@ -1,4 +1,5 @@
 import copy
+import numpy
 
 
 '''
@@ -6,6 +7,12 @@ This file is to determine if the game has reached an end-state
 and to check that each chosen move is a legal move in the 
 current game state
 '''
+
+INIT_STATE = 	[[[0,0],[0,0],[0,0],[0,0],[0,0]],
+				 [[0,0],[1,0],[0,0],[1,0],[0,0]],
+				 [[0,0],[0,0],[0,0],[0,0],[0,0]],
+				 [[0,0],[-1,0],[0,0],[-1,0],[0,0]],
+				 [[0,0],[0,0],[0,0],[0,0],[0,0]]]
 
 def unflattenMove(action_index):
 	# Identify the piece (0 or 1)

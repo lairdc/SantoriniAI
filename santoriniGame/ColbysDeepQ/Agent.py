@@ -5,6 +5,7 @@ import torch.optim as optim
 import numpy as np 
 import random
 from DeepQ import DeepQ
+from environment import *
 
 class Agent:
     def __init__(self, deep_q, action_size, batch_size=32):
@@ -14,12 +15,18 @@ class Agent:
 
     def act(self, state):
         # Epsilon-greedy policy for exploration and exploitation
-        if np.random.rand() <= self.deep_q.epsilon:
-            return random.randrange(self.action_size)  # Explore
-        else:
-            state = T.tensor(state, dtype=T.float32).unsqueeze(0)
-            q_values = self.deep_q.model(state)  # Forward pass through the Q-network
-            return T.argmax(q_values).item()  # Exploit best action
+        while True:
+            if np.random.rand() <= self.deep_q.epsilon:
+                move = random.randrange(self.action_size)  # Explore
+            else:
+                model_input = T.tensor(state, dtype=T.float32).unsqueeze(0)
+                q_values = self.deep_q.model(model_input)  # Forward pass through the Q-network
+
+                move = T.argmax(q_values).item()  # Exploit best action
+
+            legal, newState = checkMove(state,move)
+            if legal:
+                return move, newState
 
     def learn(self, state, action, reward, next_state, done):
         # Store the experience in replay memory
