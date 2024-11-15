@@ -134,6 +134,14 @@ class TylerMCTS:
             result = -result  # Alternate result for opponent
             node = node.parent
 
+    def print_node(self, node, node_level):
+        print("Node Level: ", node_level, "  ",
+              "RED: ", node.board.pieces['RED'], "  ",
+              "BLUE: ", node.board.pieces['BLUE'])
+        node_level += 1
+        for child in node.children:
+            self.print_node(child, node_level)
+
     def run_simulation(self):
         # Run one iteration of MCTS
         node = self.root
@@ -153,10 +161,12 @@ class TylerMCTS:
 
         # Backpropagation
         self.backpropagate(node, result)
+        print(result)
 
-    def make_move(self, num_simulations=100):
+    def make_move(self):
         # Run MCTS simulations
-        for _ in range(num_simulations):
+        for i in range(10):
+            print("i: ",i)
             self.run_simulation()
 
         # No moves
@@ -164,6 +174,7 @@ class TylerMCTS:
             return
         # Select the child with the best win rate and highest visit count
         best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
+        self.print_node(best_child, 0)
 
         action = best_child.move
         if action is None:
@@ -175,6 +186,7 @@ class TylerMCTS:
 
         # Execute the move on the game board
         piece_row, piece_col = action[0]  # Starting position of the piece
+        print("Move: ", action)
         if self.game.select(piece_row, piece_col):  # Select piece
             self.game._move(move_x, move_y)  # Move piece
             self.game._build(build_x, build_y)  # Build after move
