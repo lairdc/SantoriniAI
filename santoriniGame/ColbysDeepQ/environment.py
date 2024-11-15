@@ -83,7 +83,7 @@ def checkMove(state,action_index):
 			row -= 1
 			col -= 1
 
-	if (state[row][col][0] == 0 and 0 <= row <= 4 and 0 <= col <= 4 and
+	if ( 0 <= row <= 4 and 0 <= col <= 4 and state[row][col][0] == 0 and
 		state[row][col][1] != 4 and state[row][col][1] - state[oldRow][oldCol][1] < 2):
 		
 		state[oldRow][oldCol][0] = 0
@@ -116,7 +116,7 @@ def checkMove(state,action_index):
 			row -= 1
 			col -= 1
 
-	if state[row][col][1] < 4 and state[row][col][0] == 0 and 0 <= row <= 4 and 0 <= col <= 4:
+	if 0 <= row <= 4 and 0 <= col <= 4 and state[row][col][1] < 4 and state[row][col][0] == 0:
 		state[row][col][1] += 1
 	else:
 		return False, oldState
@@ -193,6 +193,15 @@ def canMove(state, piece):
 	
 	# If no valid moves are found, return False
 	return False
+
+def flipState(state):
+	for r in range(5):
+		for c in range(5):
+			if state[r][c][0] == 1:
+				state[r][c][0] = -1
+			if state[r][c][0] == -1:
+				state[r][c][0] = 1
+	return state
 
 
 

@@ -24,32 +24,25 @@ ORDER OF EVENTS:
 #SKELETON CODE
 import torch as T
 import random
-import environment
-import Agent
-import DeepQ
+from environment import *
+from Agent import Agent
+from DeepQ import DeepQ
 import copy
 
 def train_agents(num_episodes):
 	# Step 1: Initialize the agents and their models
 	input_dim = 5 * 5 * 2  # Update according to your board size and representation
-	output_dim = 8 * 8  # Update to match the number of possible moves in your game
-	model1 = DQNModel(input_dim, output_dim)
-	model2 = DQNModel(input_dim, output_dim)
-	
-	target_model1 = DQNModel(input_dim, output_dim)
-	target_model2 = DQNModel(input_dim, output_dim)
-	
-	target_model1.load_state_dict(model1.state_dict())
-	target_model2.load_state_dict(model2.state_dict())
-	
-	agent1 = Agent(deep_q=DeepQ(model=model1, target_model=target_model1))
-	agent2 = Agent(deep_q=DeepQ(model=model2, target_model=target_model2))
+	output_dim = 8 * 8 * 2  # Update to match the number of possible moves in your game
 
-	print("Agents initialized")
+	
+	agent1 = Agent(deep_q=DeepQ(input_dim=input_dim, output_dim=output_dim),action_size=output_dim)
+	agent2 = Agent(deep_q=DeepQ(input_dim=input_dim, output_dim=output_dim),action_size=output_dim)
+
+	print("Agents initialized", flush=True)
 	
 	# Step 2: Start the training loop for a given number of episodes
 	for episode in range(num_episodes):
-		print(f"Episode {episode + 1} / {num_episodes}")
+		print(f"Episode {episode + 1} / {num_episodes}", flush=True)
 		
 		# Reset the game (initialize the environment)
 		done = False
@@ -63,7 +56,7 @@ def train_agents(num_episodes):
 		while not done:
 			# Step 3: Agent 1 makes a move
 			action1, new_state1 = agent1.act(state)
-			reward1 = calculate_reward(env, action1, agent=1)
+			reward1 = calculate_reward(state)
 			agent1.learn(state, action1, reward1, new_state1, done)
 			state = new_state1  # Update state to the new one after agent 1's move
 
@@ -71,13 +64,13 @@ def train_agents(num_episodes):
 			winner = checkEndState(state)
 			if winner != 0: 
 				done = True
-			if done:
-					total_reward1 += reward1
-				
 			
+			total_reward1 += reward1
+				
+			state = flipState(state)
 			# Step 5: Agent 2 makes a move
 			action2, new_state2 = agent2.act(state)
-			reward2 = calculate_reward(env, action2, agent=2)
+			reward2 = calculate_reward(state)
 			agent2.learn(state, action2, reward2, new_state2, done)
 			state = new_state2  # Update state to the new one after agent 2's move
 
@@ -85,22 +78,24 @@ def train_agents(num_episodes):
 			winner = checkEndState(state)
 			if winner != 0: 
 				done = True
-			if done:
-					total_reward1 += reward1
+			
+			total_reward2 += reward2
+
+			state = flipState(state)
 		
 		# After each game (episode) ends, call the models to update
 		agent1.deep_q.update_target_network()
 		agent2.deep_q.update_target_network()
 		
 		# Optionally: Print out rewards or game status here if desired
-		print(f"Total reward for Agent 1: {total_reward1}")
-		print(f"Total reward for Agent 2: {total_reward2}")
+		print(f"Total reward for Agent 1: {total_reward1}", flush=True)
+		print(f"Total reward for Agent 2: {total_reward2}", flush=True)
 	
 	# Save trained models
 	T.save(agent1.deep_q.model.state_dict(), "agent1_model.pth")
 	T.save(agent2.deep_q.model.state_dict(), "agent2_model.pth")
 
-def calculate_reward(env, action, agent):
+def calculate_reward(state):
 	"""Calculate rewards based on the game state after an action."""
 	reward = 0
 	
