@@ -14,8 +14,15 @@ class Agent:
         self.batch_size = batch_size #batch size - 
 
     def act(self, state):
+        
         # Epsilon-greedy policy for exploration and exploitation
+        count = 0
         while True:
+            count += 1
+            if count == 10000:
+                print("stuck!")
+                print(state,flush=True)
+                return -1, state
             if np.random.rand() <= self.deep_q.epsilon:
                 move = random.randrange(self.action_size)  # Explore
             else:
@@ -24,18 +31,26 @@ class Agent:
 
                 move = T.argmax(q_values).item()  # Exploit best action
 
+            #print("Chosen move: ", move, flush=True)
             legal, newState = checkMove(state,move)
             if legal:
+                #print("Acted",flush=True)
                 return move, newState
+            '''else:
+                print(state,flush=True)'''
 
     def learn(self, state, action, reward, next_state, done):
+
         # Store the experience in replay memory
         self.deep_q.remember(state, action, reward, next_state, done)
 
         # Train on a batch if there are enough samples in memory
         if len(self.deep_q.memory) >= self.batch_size:
+            #print("Learning", flush = True)
             self.deep_q.replay(batch_size=self.batch_size)
+            #print("Learnt",flush = True)
 
         # Decay epsilon if the episode has ended
         if done:
+            print("Decay Epsilon", flush = True)
             self.deep_q.decay_epsilon()

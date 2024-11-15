@@ -47,8 +47,12 @@ def checkMove(state,action_index):
 	#turn action matrix into piece_num, moveDir, buildDir
 	piece_num, moveDir, buildDir = unflattenMove(action_index)
 
+	#print("p#: ", piece_num, "moveDir: ",moveDir, "buildDir: ", buildDir)
+
 	#Checking for move legality
 	p = 0
+	row = None
+	col = None
 	for r in range(5):
 		for c in range(5):
 			if state[r][c][0] == 1:
@@ -57,6 +61,9 @@ def checkMove(state,action_index):
 				else:
 					row = r
 					col = c
+					break
+		if row != None:
+			break
 
 
 	oldRow = row
@@ -83,7 +90,7 @@ def checkMove(state,action_index):
 			row -= 1
 			col -= 1
 
-	if ( 0 <= row <= 4 and 0 <= col <= 4 and state[row][col][0] == 0 and
+	if (0 <= row <= 4 and 0 <= col <= 4 and state[row][col][0] == 0 and
 		state[row][col][1] != 4 and state[row][col][1] - state[oldRow][oldCol][1] < 2):
 		
 		state[oldRow][oldCol][0] = 0

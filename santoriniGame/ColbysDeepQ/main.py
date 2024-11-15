@@ -43,6 +43,7 @@ def train_agents(num_episodes):
 	# Step 2: Start the training loop for a given number of episodes
 	for episode in range(num_episodes):
 		print(f"Episode {episode + 1} / {num_episodes}", flush=True)
+		print("Epsilon1: ", agent1.deep_q.epsilon, "Epsilon2: ", agent2.deep_q.epsilon, flush=True)
 		
 		# Reset the game (initialize the environment)
 		done = False
@@ -53,40 +54,62 @@ def train_agents(num_episodes):
 		total_reward2 = 0
 		
 		# Step 3-7: Both agents play the game, one after the other
+		#print("Pre episode state: \n", state, flush=True)
 		while not done:
 			# Step 3: Agent 1 makes a move
 			action1, new_state1 = agent1.act(state)
 			reward1 = calculate_reward(state)
+			winner = checkEndState(new_state1)
+			print(new_state1,flush=True)
+			print(winner,flush=True)
+
+			if winner != 0 or action1 == -1: 
+				done = True
+				if action1 != -1:
+					agent1.learn(state, action1, reward1, new_state1, done)
+					agent2.learn(state, action2, reward2, new_state2, done)
+				total_reward1 += reward1
+				break
+
+
+
 			agent1.learn(state, action1, reward1, new_state1, done)
 			state = new_state1  # Update state to the new one after agent 1's move
-
-			# Step 4: Check if the game ends after Agent 1's move
-			winner = checkEndState(state)
-			if winner != 0: 
-				done = True
-			
 			total_reward1 += reward1
 				
 			state = flipState(state)
-			# Step 5: Agent 2 makes a move
+			#print(state,flush=True)
+
 			action2, new_state2 = agent2.act(state)
 			reward2 = calculate_reward(state)
+			winner = checkEndState(new_state2)
+			print(new_state2,flush=True)
+			print(winner,flush=True)
+
+
+			if winner != 0 or action2 == -1: 
+				done = True
+				if action2 != -1:
+					agent1.learn(state, action1, reward1, new_state1, done)
+					agent2.learn(state, action2, reward2, new_state2, done)
+				total_reward2 += reward2
+				break
+
 			agent2.learn(state, action2, reward2, new_state2, done)
 			state = new_state2  # Update state to the new one after agent 2's move
-
-			# Step 6: Check if the game ends after Agent 2's move
-			winner = checkEndState(state)
-			if winner != 0: 
-				done = True
-			
 			total_reward2 += reward2
 
 			state = flipState(state)
+
 		
+
 		# After each game (episode) ends, call the models to update
+		print("Post episode state: \n", state, flush=True)
+		#print("Epsiode over, updating agent1",flush=True)
 		agent1.deep_q.update_target_network()
+		#print("Epsiode over, updating agent1",flush=True)
 		agent2.deep_q.update_target_network()
-		
+
 		
 		# Optionally: Print out rewards or game status here if desired
 		print(f"Total reward for Agent 1: {total_reward1}", flush=True)
