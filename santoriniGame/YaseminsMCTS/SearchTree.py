@@ -8,7 +8,7 @@ class SearchTree:
         self.current = self.root
 
     def move_current(self, node):
-        self.current = self.node
+        self.current = node
 
     def get_current(self):
         return self.current
@@ -42,14 +42,15 @@ class TreeNode:
     def add_child(self, child_node):
         self.children.append(child_node)
 
-    def has_child(self, node):
-        for child in children:
-            if child == node:
-                return True
-        return False
+    def get_child(self, play):
+        for child in self.children:
+            if child.play == play:
+                return child
+
+        return None
 
     def ucb1(self, exploration_param=1.41):
-        if parent == None:
+        if self.parent == None:
             return None
         # Calculate the Upper Confidence Bound (UCB1) score
         if self.matches == 0:
