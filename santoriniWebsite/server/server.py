@@ -31,7 +31,7 @@ class Move(BaseModel):
 
 @app.get("/bots")
 def get_bots():
-    return bots
+    return list(bots.keys())
 
 @app.put("/game/create")
 async def create_game_board(bot_id: str):
@@ -57,7 +57,7 @@ async def make_piece_move(game_id: UUID, move: Move):
     move = Move(
         piece = (game.last_move_selected.col, game.last_move_selected.row),
         to = (game.last_move_x, game.last_move_y),
-        build = (game.last_build_x, game.last_move_y)
+        build = (game.last_build_x, game.last_build_y)
     )
     return move
 
