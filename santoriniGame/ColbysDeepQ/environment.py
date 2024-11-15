@@ -164,6 +164,7 @@ def checkEndState(state):
 	return 0
 
 def canMove(state, piece):
+	#print(state,flush=True)
 	# Get the current row and column of the piece
 	row, col = piece
 	
@@ -199,7 +200,7 @@ def flipState(state):
 		for c in range(5):
 			if state[r][c][0] == 1:
 				state[r][c][0] = -1
-			if state[r][c][0] == -1:
+			elif state[r][c][0] == -1:
 				state[r][c][0] = 1
 	return state
 

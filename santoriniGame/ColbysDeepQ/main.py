@@ -87,6 +87,7 @@ def train_agents(num_episodes):
 		agent1.deep_q.update_target_network()
 		agent2.deep_q.update_target_network()
 		
+		
 		# Optionally: Print out rewards or game status here if desired
 		print(f"Total reward for Agent 1: {total_reward1}", flush=True)
 		print(f"Total reward for Agent 2: {total_reward2}", flush=True)
