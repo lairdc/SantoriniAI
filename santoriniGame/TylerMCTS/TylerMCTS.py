@@ -1,3 +1,4 @@
+
 import random
 import math
 from santoriniGame.pieces import Piece
@@ -7,23 +8,28 @@ from collections import defaultdict
 ROWS = 5
 COLS = 5
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 
-# NODE CLASS
-#   Stores possible iterations of the board
-#   Can store children iterations
 class Node:
     def __init__(self, board):
         self.board = board.copy()
         self.children = []
-        self.visits = 0
+        self.visits = 1
         self.wins = 0
         self.parent = None
-        self.action = None
+        self.move = None
 
     def add_child(self, child_node):
         child_node.parent = self
         self.children.append(child_node)
+
+class TylerMCTS:
+    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
+        self.game = game
+        self.own_color = own_color
+        self.opp_color = opp_color
+        self.root = Node(self.board_to_dict(game.board))
 
     def board_to_dict(self, old_board):
         dict_board = DictBoard()
@@ -47,17 +53,20 @@ class Node:
 
         return dict_board
 
-# TylerMCTS
-# Generates and uses the Monte Carlo Search Tree
-class TylerMCTS:
-    def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int], root):
-        self.game = game
-        self.own_color = own_color
-        self.opp_color = opp_color
-        self.root = root
+    def str_to_color(self, str):
+        if str == 'RED':
+            return RED
+        else:
+            return BLUE
+
+    def tuple_to_str(self, color):
+        if color == (255,0,0):
+            return 'RED'
+        else:
+            return 'BLUE'
 
     def select(self, node):
-        # Select node with highest UCT value.
+        # Select node with highest UCT value
         best_child = max(node.children, key=lambda x: (x.wins / x.visits) + (2 * (2 * node.visits) ** 0.5 / x.visits))
         return best_child
 
@@ -78,44 +87,106 @@ class TylerMCTS:
         board_copy.tiles[build_pos] = (
         board.tiles[build_pos][0] + 1, board.tiles[build_pos][1])  # Increment build level
         if board.tiles[move_pos][0] == 3:
-            return board_copy, True, True
-        elif (board.tiles[move_pos][0] == 1 or board.tiles[move_pos][0] == 0) and random.randint(0, 1) == 1:
-            return board_copy, False, True
-        return board_copy, False, False
+            return board_copy, True
+        elif board.tiles[move_pos][0] == 1 or board.tiles[move_pos][0] == 0:
+            return board_copy, False
+        return board_copy, False
 
     def expand(self, node):
-        pieces = node.board.pieces[self.own_color]
+        # Create children for each possible move and build
+        pieces = node.board.pieces[self.tuple_to_str(self.own_color)]
         for piece in pieces:
             moves = node.board.get_all_moves(piece)
             for move in moves:
-                new_board, winner, add = self.simulate_move(node.board, move)
+                new_board, winner = self.simulate_move(node.board, move)
                 if winner:
                     node.wins += 1
-                node.children.append(new_board)
+                child_node = Node(new_board)
+                child_node.move = move
+                node.add_child(child_node)
+
+    def simulate(self, node):
+        # Simulate by playing random moves until the game ends
+        board_copy = node.board.copy()
+        while not board_copy.is_game_over():
+            pieces = board_copy.pieces[self.tuple_to_str(self.own_color)]
+            # Choosing random move
+            piece = random.choice(pieces)
+            all_moves = board_copy.get_all_moves(piece)
+            if len(all_moves) == 0:
+                return 0
+            move = random.choice(board_copy.get_all_moves(piece))
+            board_copy, winner = self.simulate_move(board_copy, move)
+            if winner:
+                return 1
+        resultColor = self.str_to_color(board_copy.result())
+        if resultColor is None:
+            return 0
+        elif resultColor == self.own_color:
+            return 1
+        else:
+            return -1
 
     def backpropagate(self, node, result):
-        """Backpropagate results up the tree."""
+        # Backpropagate results up the tree
         while node:
             node.visits += 1
             node.wins += result
             result = -result  # Alternate result for opponent
             node = node.parent
 
-    def make_move(self):
-        own_pieces = self.game.board.get_all_pieces(self.own_color)
+    def run_simulation(self):
+        # Run one iteration of MCTS
+        node = self.root
 
-        if not own_pieces:
-            return  # No pieces to move
+        # Selection
+        while node.children:
+            node = self.select(node)
 
-        action = self.get_best_action(self.game.board)
+        # Expansion
+        if node.visits > 0 and not node.children:
+            self.expand(node)
 
-        if action is not None:
-            piece = own_pieces[action[0]]
-            move_x, move_y = action[1], action[2]
-            build_x, build_y = action[3], action[4]
+        # Simulation
+        if node.children:
+            node = random.choice(node.children)
+        result = self.simulate(node)
 
-            if self.game.select(piece.row, piece.col):  # Select piece
-                self.game._move(move_x, move_y)  # Move piece
-                self.game._build(build_x, build_y)  # Build after move
+        # Backpropagation
+        self.backpropagate(node, result)
+
+    def print_node(self, node, node_level):
+        print("Node Level: ", node_level, "  ",
+              "RED: ", node.board.pieces['RED'], "  ",
+              "BLUE: ", node.board.pieces['BLUE'])
+        node_level += 1
+        for child in node.children:
+            self.print_node(child, node_level)
+
+    def make_move(self, num_simulations=100):
+        # Run MCTS simulations
+        for _ in range(num_simulations):
+            self.run_simulation()
+
+        # No moves
+        if not self.root.children:
+            return
+        # Select the child with the best win rate and highest visit count
+        best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
+        self.print_node(best_child, 0)
+
+        action = best_child.move
+        if action is None:
+            return
+
+        # Unpack the move information
+        move_x, move_y = action[1]
+        build_x, build_y = action[2]
+
+        # Execute the move on the game board
+        piece_row, piece_col = action[0]  # Starting position of the piece
+        if self.game.select(piece_row, piece_col):  # Select piece
+            self.game._move(move_x, move_y)  # Move piece
+            self.game._build(build_x, build_y)  # Build after move
 
         self.game.selected = None  # Deselect after move and build

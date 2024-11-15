@@ -1,3 +1,4 @@
+
 import random
 import copy
 
@@ -94,3 +95,23 @@ class DictBoard:
 				all_moves.append([(starting_row, starting_col), (move_row, move_col), (build_row, build_col)])
 
 		return all_moves
+
+	def is_game_over(self):
+		# Check if any piece has reached the target tile for either player
+		for piece in self.pieces['RED']:
+			if self.tiles[piece][0] == 3:
+				return True
+		for piece in self.pieces['BLUE']:
+			if self.tiles[piece][0] == 3:
+				return True
+		return False
+
+	def result(self):
+		# Determine the result of the game based on piece positions
+		for piece in self.pieces['RED']:
+			if self.tiles[piece][0] == 3:
+				return 'RED'
+		for piece in self.pieces['BLUE']:
+			if self.tiles[piece][0] == 3:
+				return 'BLUE'
+		return None  # No winner yet

@@ -1,23 +1,19 @@
 import pygame
 import time  # Import time module
 
-
-
-
-
 from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
 from game import Game
 from bot import Bot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
-
+from TylerMCTS.TylerMCTS import *
 
 FPS = 60
 
-
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Santorini')
+
 
 def get_row_col_from_mouse(pos: tuple[int, int]):
     x, y = pos
@@ -25,9 +21,10 @@ def get_row_col_from_mouse(pos: tuple[int, int]):
     col = x // SQUARE_SIZE
     return row, col
 
+
 def draw_menu(win, buttons):
     win.fill(GREEN)
-    
+
     # Draw buttons
     for button in buttons:
         pygame.draw.rect(win, button["color"], button["rect"])
@@ -37,6 +34,7 @@ def draw_menu(win, buttons):
         win.blit(text, text_rect)
 
     pygame.display.update()
+
 
 def choose_game_mode():
     """Displays the menu and waits for the user to select a game mode."""
@@ -48,25 +46,29 @@ def choose_game_mode():
     button_width, button_height = 400, 100
     buttons = [
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 4 - button_height, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 4 - button_height, button_width,
+                                button_height),
             "color": BLUE,
             "text": "Play as Blue vs Red Bot",
             "action": "PvC"
         },
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 2 - button_height - 40, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT // 2 - button_height - 40, button_width,
+                                button_height),
             "color": RED,
             "text": "Play as Red vs Blue Bot",
             "action": "CvP"
         },
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT * 3 // 4 - button_height - 60, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT * 3 // 4 - button_height - 60, button_width,
+                                button_height),
             "color": GREY,
             "text": "Play Locally with a Friend",
             "action": "PvP"
         },
         {
-            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT - button_height - 80, button_width, button_height),
+            "rect": pygame.Rect(WIDTH // 2 - button_width // 2, HEIGHT - button_height - 80, button_width,
+                                button_height),
             "color": GREY,
             "text": "Bot VS Bot",
             "action": "CvC"
@@ -109,15 +111,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = YaseminsMiniMax(game, BLUE, RED)
+        blue_player = TylerMCTS(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        red_player = TylerMCTS(game, RED, BLUE)
     else:
-        blue_player = Bot(game,BLUE,RED)
-        red_player = YaseminsMiniMax(game,RED,BLUE)
-
+        blue_player = Bot(game, BLUE, RED)
+        red_player = TylerMCTS(game, RED, BLUE)
 
         num_games = 10
         red_wins, blue_wins = (0, 0)
@@ -131,7 +132,6 @@ def main():
             game.game_over = None
 
             # Time tracking for each player
-            
 
             # Start tracking turns
             turn_start_time = time.time()
@@ -169,7 +169,7 @@ def main():
             print(f"Winner: {winner}")
             print(f"RED total time: {red_time_total:.2f} seconds")
             print(f"BLUE total time: {blue_time_total:.2f} seconds")
-            print(f"BLUE avg time per turn {blue_time_total/blue_turns:.2f}")
+            print(f"BLUE avg time per turn {blue_time_total / blue_turns:.2f}")
 
         print(f"RED Wins: {red_wins}")
         print(f"BLUE Wins: {blue_wins}")
@@ -204,6 +204,7 @@ def main():
         game.update()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
