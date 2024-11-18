@@ -11,6 +11,7 @@ from bot import Bot
 from YaseminsMiniMax import YaseminsMiniMax
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
+from ColbysDeepQ.TrainedModel import *
 
 FPS = 60
 
@@ -108,14 +109,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = TylerMiniMax(game, BLUE, RED)
+        blue_player = TrainedDQN(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = TylerMiniMax(game,RED,BLUE)
+        red_player = TrainedDQN(game,RED,BLUE)
     else:
         blue_player = ColbysMiniMax(game,BLUE,RED)
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        red_player = TrainedDQN(game,RED,BLUE)
 
 
         num_games = 10
