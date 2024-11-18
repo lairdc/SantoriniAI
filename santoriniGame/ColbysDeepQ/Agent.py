@@ -14,16 +14,14 @@ class Agent:
         self.batch_size = batch_size #batch size - 
 
     def act(self, state):
-        
+        #IF model picks illegal move, punish it, and gointo just picking randomly
         # Epsilon-greedy policy for exploration and exploitation
         count = 0
+        legal = True
         while True:
-            count += 1
-            if count == 10000:
-                print("stuck!")
-                print(state,flush=True)
-                return -1, state
-            if np.random.rand() <= self.deep_q.epsilon:
+            if count > 1000:
+                print("houston we have a problemo", flush=True)
+            if np.random.rand() <= self.deep_q.epsilon or not legal:
                 move = random.randrange(self.action_size)  # Explore
             else:
                 model_input = T.tensor(state, dtype=T.float32).unsqueeze(0)
@@ -36,6 +34,10 @@ class Agent:
             if legal:
                 #print("Acted",flush=True)
                 return move, newState
+            elif count == 0:
+                count += 1
+                self.deep_q.remember(state, move, -20, state, False)
+
             '''else:
                 print(state,flush=True)'''
 

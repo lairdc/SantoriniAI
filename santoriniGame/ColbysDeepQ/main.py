@@ -18,7 +18,19 @@ ORDER OF EVENTS:
 
 '''
 
+'''
+KNOWN BUGS:
+-Coesnt properly recognize a win (only when it cause no valid moves left)
+	-Temp fix with Agent's act() return -1 if it can find a move
+	-Actual issue probably lays in main
+-Sometimes an agent moves twice and doesnt build
+	-Probably lies in environment.py
+	-Make sure environemnt properly handles all actions
+		-Maybe simulate & manually check them?? ugh
 
+
+-When Deep-Q picks worng move, always have it pick randomly
+'''
 
 
 #SKELETON CODE
@@ -33,7 +45,8 @@ def train_agents(num_episodes):
 	# Step 1: Initialize the agents and their models
 	input_dim = 5 * 5 * 2  # Update according to your board size and representation
 	output_dim = 8 * 8 * 2  # Update to match the number of possible moves in your game
-
+	wins1 = 0
+	wins2 = 0
 	
 	agent1 = Agent(deep_q=DeepQ(input_dim=input_dim, output_dim=output_dim),action_size=output_dim)
 	agent2 = Agent(deep_q=DeepQ(input_dim=input_dim, output_dim=output_dim),action_size=output_dim)
@@ -57,14 +70,17 @@ def train_agents(num_episodes):
 		#print("Pre episode state: \n", state, flush=True)
 		while not done:
 			# Step 3: Agent 1 makes a move
+			#print("Passing this state to agent1: ",state,flush=True)
 			action1, new_state1 = agent1.act(state)
-			reward1 = calculate_reward(state)
+			reward1 = calculate_reward(new_state1)
 			winner = checkEndState(new_state1)
-			print(new_state1,flush=True)
-			print(winner,flush=True)
+			#print(new_state1,flush=True)
+			#print(winner, reward1,flush=True)
 
-			if winner != 0 or action1 == -1: 
+			if winner != 0: 
+				w = 1
 				done = True
+				reward2 -= reward1
 				if action1 != -1:
 					agent1.learn(state, action1, reward1, new_state1, done)
 					agent2.learn(state, action2, reward2, new_state2, done)
@@ -79,16 +95,18 @@ def train_agents(num_episodes):
 				
 			state = flipState(state)
 			#print(state,flush=True)
-
+			#print("Passing this state to agent2: ",state,flush=True)
 			action2, new_state2 = agent2.act(state)
-			reward2 = calculate_reward(state)
+			reward2 = calculate_reward(new_state2)
 			winner = checkEndState(new_state2)
-			print(new_state2,flush=True)
-			print(winner,flush=True)
+			#print(new_state2,flush=True)
+			#print(action2,flush=True)
 
 
-			if winner != 0 or action2 == -1: 
+			if winner != 0: 
+				w = 2
 				done = True
+				reward2 -= reward1
 				if action2 != -1:
 					agent1.learn(state, action1, reward1, new_state1, done)
 					agent2.learn(state, action2, reward2, new_state2, done)
@@ -102,9 +120,12 @@ def train_agents(num_episodes):
 			state = flipState(state)
 
 		
-
+		if w == 1:
+			wins1 += 1
+		else:
+			wins2 += 1
 		# After each game (episode) ends, call the models to update
-		print("Post episode state: \n", state, flush=True)
+		#print("Post episode state: \n", state, flush=True)
 		#print("Epsiode over, updating agent1",flush=True)
 		agent1.deep_q.update_target_network()
 		#print("Epsiode over, updating agent1",flush=True)
@@ -116,6 +137,8 @@ def train_agents(num_episodes):
 		print(f"Total reward for Agent 2: {total_reward2}", flush=True)
 	
 	# Save trained models
+	print("Agent 1 Wins: ", wins1, flush = True)
+	print("Agent 2 Wins: ", wins2, flush = True)
 	T.save(agent1.deep_q.model.state_dict(), "agent1_model.pth")
 	T.save(agent2.deep_q.model.state_dict(), "agent2_model.pth")
 
@@ -136,4 +159,4 @@ def calculate_reward(state):
 	return reward
 
 if __name__ == "__main__":
-	train_agents(num_episodes=1000)
+	train_agents(num_episodes=10000)

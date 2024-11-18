@@ -43,7 +43,7 @@ def checkMove(state,action_index):
 	[0-1][0-7][0-7]
 	 p#  mDir bDir
 	'''
-	oldState = copy.deepcopy(state)
+	newState = copy.deepcopy(state)
 	#turn action matrix into piece_num, moveDir, buildDir
 	piece_num, moveDir, buildDir = unflattenMove(action_index)
 
@@ -90,17 +90,15 @@ def checkMove(state,action_index):
 			row -= 1
 			col -= 1
 
-	if (0 <= row <= 4 and 0 <= col <= 4 and state[row][col][0] == 0 and
-		state[row][col][1] != 4 and state[row][col][1] - state[oldRow][oldCol][1] < 2):
+	if (0 <= row <= 4 and 0 <= col <= 4 and newState[row][col][0] == 0 and
+		newState[row][col][1] != 4 and newState[row][col][1] - newState[oldRow][oldCol][1] < 2):
 		
-		state[oldRow][oldCol][0] = 0
-		state[row][col][0] = 1
+		newState[oldRow][oldCol][0] = 0
+		newState[row][col][0] = 1
 	else:
-		return False, oldState
+		return False, state
 
 	#checking for build legality
-	oldRow = row
-	oldCol = col
 	match buildDir:
 		case 0:
 			row -= 1
@@ -123,12 +121,12 @@ def checkMove(state,action_index):
 			row -= 1
 			col -= 1
 
-	if 0 <= row <= 4 and 0 <= col <= 4 and state[row][col][1] < 4 and state[row][col][0] == 0:
-		state[row][col][1] += 1
+	if 0 <= row <= 4 and 0 <= col <= 4 and newState[row][col][1] < 4 and newState[row][col][0] == 0:
+		newState[row][col][1] += 1
 	else:
-		return False, oldState
+		return False, state
 
-	return True, state
+	return True, newState
 
 
 def checkEndState(state):
@@ -153,20 +151,13 @@ def checkEndState(state):
 				else:
 					piece4 = (r,c)
 
-	p1move = canMove(state,piece1)
-	if not p1move:
-		p2move = canMove(state,piece2)
-		if not p2move:
-			return -1
 
+	#checks if any legal moves for opponent
 	p3move = canMove(state,piece3)
 	if not p3move:
 		p4move = canMove(state,piece4)
 		if not p4move:
 			return 1
-
-
-
 
 	return 0
 

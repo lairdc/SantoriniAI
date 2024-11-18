@@ -53,7 +53,7 @@ class DQNModel(nn.Module):
 
 
 class DeepQ(nn.Module):
-	def __init__(self, input_dim,output_dim, memory_size=2000, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001):
+	def __init__(self, input_dim,output_dim, memory_size=2000, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.9995, learning_rate=0.001):
 		super(DeepQ, self).__init__()
 		self.model = DQNModel(input_dim,output_dim)  # Neural network for the Q-function
 		self.target_model = DQNModel(input_dim,output_dim)
