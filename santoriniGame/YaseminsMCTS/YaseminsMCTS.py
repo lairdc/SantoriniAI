@@ -21,14 +21,16 @@ class YaseminsMCTS:
         # Find the best possible move
         play = self.make_play()
         pos, move, build = play
+
+        # Debug output
+        #print(f"Received {play})")
+
+        # Select piece
         piece = None
-        if (pos[0] == own_pieces[0].row and pos[0] == own_pieces[0].col):
+        if (pos[0] == own_pieces[0].row and pos[1] == own_pieces[0].col):
             piece = own_pieces[0]
         else:
             piece = own_pieces[1]
-
-        # Debug output
-        print(f"Received {play})")
 
         # Perform optimal move and build for current board state
         if self.game.select(piece.row, piece.col):   
@@ -53,42 +55,89 @@ class YaseminsMCTS:
 
         # Loop for each possible piece, move, and build
         for piece in own_pieces:
-            print(f"new piece")
-            start_row = piece.row
-            start_col = piece.col
-            start = start_row, start_col
-            if self.game.select(piece.row, piece.col):
-                valid_moves = self.game.board.get_valid_moves(piece)
-                for move in valid_moves:
-                    row, col = move
-                    self._try_move(move)
-                    valid_builds = self.game.board.get_valid_builds(self.game.selected)
-                    for build in valid_builds:
-                    
-                        # Explore valid plays in MCTS tree
-                        play = (start, move, build)
-                        print(f"{play}")
 
-                        current = self.mcts.get_current()
-                        child = current.get_child(play)
-                        if child == None:
-                            # New possible move found, add to tree
-                            child = TreeNode(play, current)
-                            current.add_child(child)
+            valid_plays = self.get_valid_plays(piece)
 
-                        # Analyse UCB1 score of current play
-                        score = child.ucb1()
-                        if score > best_ucb1:
-                            best_play = play
-                            best_ucb1 = score   
-                        
-                    print(f"{start[0]}, {start[1]}")
-                    self._try_move(start)
+            # Explore valid plays in MCTS tree
+            for play in valid_plays:
+                print(f"{play}")
+
+                current = self.mcts.get_current()
+                child = current.get_child(play)
+
+                if child == None:
+                    # New possible move found, add to tree
+                    child = TreeNode(play, current)
+                    current.add_child(child)
+
+                # Analyse UCB1 score of current play
+                score = child.ucb1()
+                if score > best_ucb1:
+                    best_play = play
+                    best_ucb1 = score   
 
         return best_play
 
-    def _try_move(self, move):
-        row, col = move
-        if self.game.selected and (row, col) in self.game.valid_moves:
-            self.game.board.move(self.game.selected, row, col)
-            #self.game.valid_moves = self.game.board.get_valid_builds(self.game.selected)  # Set up for building after moving
+    # Returns a list of every valid move, build combination for the given piece. 
+    # play = ( (piece.row, piece.col), (move.row, move.col), (build.row, build.col))
+    def get_valid_plays(self, piece):
+        plays = []
+
+        moves = self.game.board.get_valid_moves(piece)
+        for move in moves:
+
+            # simulate move
+            pieces = self.game.board.get_all_pieces(self.own_color) + self.game.board.get_all_pieces(self.opp_color)
+            piece_locations = []
+            for p in pieces:
+                if piece.row == p.row and piece.col == p.col:
+                    piece_locations.append(move)
+                else:
+                    p_loc = p.row, p.col
+                    piece_locations.append(p_loc)
+
+            # append all valid builds based on simulation
+            builds = self.mcts_all_valid_builds(move, piece_locations)
+            for build in builds:
+                location = piece.row, piece.col
+                play = location, move, build
+                plays.append(play)
+
+        return plays
+
+    # A version of board.py's get_valid_builds but it recieves every piece location in a list
+    # This is to bypass piece move/build steps so that we do not break turn order
+    def mcts_all_valid_builds(self, move, pieces):
+
+        builds = []
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),  # Top-left, top, top-right
+            (0, -1),         (0, 1),     # Left,         , right
+            (1, -1), (1, 0), (1, 1)      # Bottom-left, bottom, bottom-right
+        ]
+
+        tile_levels = self.game.board.tile_levels.copy()
+        ROWS = len(tile_levels)
+        COLS = len(tile_levels[0]) if ROWS > 0 else 0
+
+        for direction in directions:
+            new_row = move[0] + direction[0]
+            new_col = move[1] + direction[1]
+            build = new_row, new_col
+
+            if 0 <= new_row < ROWS and 0 <= new_col < COLS:
+                target_level = tile_levels[new_row][new_col]
+
+                # Ensure the target level is climbable and does not have a dome
+                if target_level < 4:
+
+                    # Check if there is already a piece at the target location
+                    valid = True
+                    for piece in pieces:
+                        if build[0] == piece[0] and build[1] == piece[1]:
+                            valid = False
+
+                    if valid:
+                        builds.append(build)
+
+        return builds
