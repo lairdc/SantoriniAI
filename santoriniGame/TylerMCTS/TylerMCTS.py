@@ -163,6 +163,9 @@ class TylerMCTS:
         for child in node.children:
             self.print_node(child, node_level)
 
+    def clear_tree(self):
+        self.root = Node(self.board_to_dict(self.game.board))
+
     def make_move(self, num_simulations=100):
         # Run MCTS simulations
         for _ in range(num_simulations):
@@ -190,3 +193,4 @@ class TylerMCTS:
             self.game._build(build_x, build_y)  # Build after move
 
         self.game.selected = None  # Deselect after move and build
+        self.clear_tree() # Clear tree
