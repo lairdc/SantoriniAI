@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes, Link} from "react-router-dom";
 import GamePage from "./pages/game";
+import GameSelection from "./pages/gameselection";
 import IndexPage from "./pages/index";
 import RulesPage from "./pages/rules";
 import './App.css';
@@ -23,13 +24,14 @@ function App() {
         <nav className="nav-bar">
           <Link to="/" className="nav-button">Home</Link>
           <Link to="/rules" className="nav-button">Rules</Link>
-          <Link to="/game" className="nav-button">Play</Link>
+          <Link to="/gameselection" className="nav-button">Play</Link>
         </nav>
         <div className="main-content">
           <Routes>
             <Route path="/" element={<IndexPage />}></Route>
             <Route path="/rules" element={<RulesPage />} /> 
-            <Route path="/game" element={<GamePage />} />
+            <Route path="/gameselection" element={<GameSelection />} />
+            <Route path="/game/:gameId?" element={<GamePage />}/>
           </Routes>
         </div>
       </BrowserRouter>
