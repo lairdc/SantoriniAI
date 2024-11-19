@@ -9,6 +9,9 @@ export class Game {
     validMoves: { [key: string]: number };
     move: boolean;
     gameOver: string | null;
+    lastMoveStart?: [number, number];
+    lastMoveTo?: [number, number];
+    lastBuild?: [number, number];
 
     constructor() {
         this.selected = null;
@@ -64,6 +67,8 @@ export class Game {
 
     _move(row: number, col: number) {
         if (this.selected) {
+            this.lastMoveStart = [this.selected.col, this.selected.col];
+            this.lastMoveTo = [col, row];
             this.board.move(this.selected, row, col);
             //check if the piece moved onto a level 3 tile (win condition)
             if (this.board.getTileLevel(row, col) === 3) {
@@ -77,6 +82,7 @@ export class Game {
     }
 
     _build(row: number, col: number) {
+        this.lastBuild = [col, row];
         this.board.build(row, col);
         this.selected = null;
         this.move = true;  //return to move phase

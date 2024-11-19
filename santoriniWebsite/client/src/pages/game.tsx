@@ -2,6 +2,7 @@ import '../fonts.css';
 import {Game} from "../game/game.ts";
 import {COLS, ROWS} from "../game/constants.ts";
 import {createContext, ReactElement, useContext, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import "./game.css";
 
 const GameContext = createContext<Game>(new Game());
@@ -13,6 +14,9 @@ export default function GamePage() {
     const [update, forceUpdate] = useState(1);
     
     const game = useContext(GameContext);
+
+    const { gameId } = useParams()
+
 
     // this is a bounded queue of size 5
     const [instructionHistory, setInstructionHistory] = useState<string[]>([]);
@@ -48,14 +52,36 @@ export default function GamePage() {
         }
 
         return (
-            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${`${row}-${col}` in game.validMoves ? "game-space-valid" : ""} ${update}`} onClick={()=>{
+            <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${`${row}-${col}` in game.validMoves ? "game-space-valid" : ""} ${update}`} onClick={async ()=>{
                 if (!game.gameOver) {
-                     if (!game.select(row, col)) {
+                    let turn = game.turn;
+                    if (!game.select(row, col)) {
                         game.selected = null;
+                    }
+                    if (gameId && turn === "blue" && game.turn === "red") {
+                        const res = await fetch(`http://localhost:8000/game/${gameId}/move`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({
+                                piece: game.lastMoveStart,
+                                to: game.lastMoveTo,
+                                build: game.lastBuild
+                            })
+                        });
+
+                        const move = await res.json();
+
+                        game.select(move.piece[1], move.piece[0]);
+                        game.select(move.to[1], move.to[0]);
+                        game._build(move.build[1], move.build[0]);
+                        forceUpdate(update+1)
                     }
                     forceUpdate(update+1);
                 }
-            }}><Piece row={row} col={col}></Piece></button>
+            }} disabled={gameId != undefined && game.turn == "red"}><Piece row={row} col={col}></Piece></button>
         );
     }
 
