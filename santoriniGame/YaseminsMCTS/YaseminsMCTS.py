@@ -60,7 +60,6 @@ class YaseminsMCTS:
 
             # Explore valid plays in MCTS tree
             for play in valid_plays:
-                print(f"{play}")
 
                 current = self.mcts.get_current()
                 child = current.get_child(play)
@@ -141,3 +140,25 @@ class YaseminsMCTS:
                         builds.append(build)
 
         return builds
+
+    # Call this function to save the game data into MCTS search tree
+    def analyse_game(self):
+        
+        pieces = self.game.board.get_all_pieces(self.own_color) + self.game.board.get_all_pieces(self.opp_color)
+        tile_levels = self.game.board.tile_levels
+        winner = None
+
+        for piece in pieces:
+            piece_level = tile_levels[piece.row][piece.col]
+            if piece_level == 3:
+                winner = piece
+                break
+        
+        # Backpropogate if game over
+        if winner is not None:
+            win = winner.color == self.own_color   # Whether bot won or not
+            last_play = self.mcts.get_current()
+            last_play.backpropogate(win)
+            #print(f"{win}")
+
+        self.mcts.save_tree()
