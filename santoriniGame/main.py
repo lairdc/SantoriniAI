@@ -162,9 +162,11 @@ def main():
             if game.game_over == 'RED':
                 red_wins += 1
                 winner = 'RED'
+                red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
             else:
                 blue_wins += 1
                 winner = 'BLUE'
+                red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
 
             # Print the winner and time spent
             print(f"Winner: {winner}")
