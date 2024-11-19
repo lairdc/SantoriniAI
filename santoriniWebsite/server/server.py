@@ -63,7 +63,7 @@ async def make_piece_move(game_id: UUID, move: Move):
     game._build(move.build[1], move.build[0])
     game.bot.make_move()
     move = Move(
-        piece = (game.last_move_selected.col, game.last_move_selected.row),
+        piece = (game.last_move_start_x, game.last_move_start_y),
         to = (game.last_move_x, game.last_move_y),
         build = (game.last_build_x, game.last_build_y)
     )
