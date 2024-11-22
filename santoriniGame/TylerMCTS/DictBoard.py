@@ -114,3 +114,14 @@ class DictBoard:
 			if self.tiles[piece][0] == 3:
 				return 'BLUE'
 		return None  # No winner yet
+
+	def print_board(self):
+		# Print tiles
+		print("Board Tiles:")
+		for position, tile_type in self.tiles.items():
+			print(f"  Position {position}: {tile_type}")
+
+		# Print pieces
+		print("\nPieces:")
+		for color, positions in self.pieces.items():
+			print(f"  {color} Pieces: {positions}")

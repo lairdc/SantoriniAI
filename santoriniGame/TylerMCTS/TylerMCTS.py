@@ -68,7 +68,7 @@ class TylerMCTS:
 
     def select(self, node):
         # Select node with highest UCT value
-        best_child = max(node.children, key=lambda x: (x.wins / x.visits) + (2 * (2 * node.visits) ** 0.5 / x.visits))
+        best_child = max(node.children, key=lambda x: (x.wins / x.visits) + 2 * (math.log(node.visits) ** 0.5 / x.visits))
         return best_child
 
     def simulate_move(self, board, move):
@@ -89,41 +89,58 @@ class TylerMCTS:
         board.tiles[build_pos][0] + 1, board.tiles[build_pos][1])  # Increment build level
         if board.tiles[move_pos][0] == 3:
             return board_copy, True
-        elif board.tiles[move_pos][0] == 1 or board.tiles[move_pos][0] == 0:
-            return board_copy, False
         return board_copy, False
 
     def expand(self, node):
         # Create children for each possible move and build
+        if node.children:  # Already expanded
+            return
         pieces = node.board.pieces[self.tuple_to_str(self.own_color)]
         for piece in pieces:
             moves = node.board.get_all_moves(piece)
             for move in moves:
                 new_board, winner = self.simulate_move(node.board, move)
-                if winner:
-                    node.wins += 1
                 child_node = Node(new_board)
                 child_node.move = move
                 node.add_child(child_node)
+                return  # Expand only one child
 
     def simulate(self, node):
         # Simulate by playing random moves until the game ends
         board_copy = node.board.copy()
+        # Set the starting player to the current player's color
+        current_player = self.own_color
         while not board_copy.is_game_over():
-            pieces = board_copy.pieces[self.tuple_to_str(self.own_color)]
-            # Choosing random move
+            # Get all pieces of the current player
+            pieces = board_copy.pieces[self.tuple_to_str(current_player)]
+            if not pieces:
+                # If the current player has no pieces, they lose
+                return -1 if current_player == self.own_color else 1
+
+            # Choose a random piece and move
             piece = random.choice(pieces)
             all_moves = board_copy.get_all_moves(piece)
-            if len(all_moves) == 0:
-                return 0
-            move = random.choice(board_copy.get_all_moves(piece))
+            if not all_moves:
+                # If no valid moves for the current player, they lose
+                return -1 if current_player == self.own_color else 1
+
+            # Randomly select a move and simulate it
+            move = random.choice(all_moves)
             board_copy, winner = self.simulate_move(board_copy, move)
+
+            # If the move results in a win, return the appropriate result
             if winner:
-                return 1
-        resultColor = self.str_to_color(board_copy.result())
-        if resultColor is None:
+                return 1 if current_player == self.own_color else -1
+
+            # Alternate turns
+            current_player = self.opp_color if current_player == self.own_color else self.own_color
+
+        # Check the result after the game ends
+        result_color = self.str_to_color(board_copy.result())
+        if result_color is None:
+            # No winner (e.g., draw)
             return 0
-        elif resultColor == self.own_color:
+        elif result_color == self.own_color:
             return 1
         else:
             return -1
