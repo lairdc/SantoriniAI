@@ -68,10 +68,21 @@ export default function GamePage() {
             <button className={`game-space game-space-built-${game.board.getTileLevel(row, col)} ${`${row}-${col}` in game.validMoves ? "game-space-valid" : ""} ${update}`} onClick={async ()=>{
                 if (!game.gameOver) {
                     let turn = game.turn;
+                    const wasMoveState = game.move;
+
                     if (!game.select(row, col)) {
                         game.selected = null;
                     }
+
+                    if (wasMoveState && !game.move) {
+                        // the player made a move here
+                        if (game.board.getTileLevel(game.lastMoveTo!![1], game.lastMoveTo!![0]) === 3) {
+                            game.gameOver = game.turn;
+                        }
+                    }
+
                     if (gameId && turn === "blue" && game.turn === "red") {
+                        // we switched turns
                         const res = await fetch(`http://localhost:8000/game/${gameId}/move`, {
                             method: "POST",
                             headers: {
@@ -89,6 +100,9 @@ export default function GamePage() {
 
                         game.select(move.piece[1], move.piece[0]);
                         game.select(move.to[1], move.to[0]);
+                        if (game.board.getTileLevel(move.to[1], move.to[0]) === 3) {
+                            game.gameOver = game.turn;
+                        }
                         game._build(move.build[1], move.build[0]);
                         forceUpdate(update+1)
                     }
