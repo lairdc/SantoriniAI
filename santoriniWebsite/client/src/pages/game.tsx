@@ -2,7 +2,7 @@ import '../fonts.css';
 import {Game} from "../game/game.ts";
 import {COLS, ROWS} from "../game/constants.ts";
 import {createContext, ReactElement, useContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import "./game.css";
 
 const GameContext = createContext<Game>(new Game());
@@ -16,7 +16,20 @@ export default function GamePage() {
     const game = useContext(GameContext);
 
     const { gameId } = useParams()
+    const navigate = useNavigate()
 
+    if (gameId) {
+        fetch(`http://localhost:8000/game/${gameId}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        }).then(response => {
+            if (response.status != 200) {
+                navigate("/gameselection")
+            }
+        });
+    }
 
     // this is a bounded queue of size 5
     const [instructionHistory, setInstructionHistory] = useState<string[]>([]);
@@ -96,8 +109,8 @@ export default function GamePage() {
     // put all the spaces in the same row in a shared div
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
-    window.onbeforeunload = async e => {
-        if (gameId != null) {
+    window.addEventListener("beforeunload", async e => {
+        if (gameId) {
             await fetch(`http://localhost:8000/game/${gameId}`, {
                 method: "DELETE",
                 headers: {
@@ -106,7 +119,7 @@ export default function GamePage() {
             });
             console.log(`Logged game ${gameId} deletion`);
         }
-    }
+    });
 
     return (
         <div className="game-container">
