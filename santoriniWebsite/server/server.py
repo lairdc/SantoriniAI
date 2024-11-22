@@ -71,6 +71,9 @@ async def make_piece_move(game_id: UUID, move: Move):
 
 @app.delete("/game/{game_id}")
 async def delete_game_board(game_id: UUID):
-    games.pop(game_id)
+    try:
+        games.pop(game_id)
+    except KeyError:
+        return Response(status_code=404)
     # return a 204 No Content
     return Response(status_code=204)
