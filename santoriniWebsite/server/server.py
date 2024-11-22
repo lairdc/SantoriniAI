@@ -53,6 +53,13 @@ async def create_game_board(bot_id: str):
     game.bot = bot
     return {"gameId": game_id}
 
+@app.get("/game/{game_id}")
+async def get_game(game_id: UUID):
+    if games.get(game_id) is None:
+        return Response(status_code=404)
+    else:
+        return Response(status_code=200)
+
 @app.post("/game/{game_id}/move")
 async def make_piece_move(game_id: UUID, move: Move):
     game = games.get(game_id)
