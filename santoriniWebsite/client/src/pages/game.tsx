@@ -109,6 +109,7 @@ export default function GamePage() {
     // put all the spaces in the same row in a shared div
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
+    // TODO: call this when a react navigate is used internally too
     window.addEventListener("beforeunload", async e => {
         if (gameId) {
             await fetch(`http://localhost:8000/game/${gameId}`, {
@@ -132,6 +133,9 @@ export default function GamePage() {
                     setInstructionHistory([]);
                     game.reset();
                     forceUpdate(update+1)
+                    if (gameId) {
+                        navigate("/gameselection")
+                    }
                 }}>Reset</button>
             </div>
         </div>
