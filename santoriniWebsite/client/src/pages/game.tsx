@@ -96,6 +96,18 @@ export default function GamePage() {
     // put all the spaces in the same row in a shared div
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
+    window.onbeforeunload = async e => {
+        if (gameId != null) {
+            await fetch(`http://localhost:8000/game/${gameId}`, {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+            console.log(`Logged game ${gameId} deletion`);
+        }
+    }
+
     return (
         <div className="game-container">
             <div className="game-board">{gridded}</div>
