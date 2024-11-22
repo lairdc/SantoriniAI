@@ -113,10 +113,26 @@ def main():
         clock.tick(FPS)
 
         if game.game_over is not None:
+    # Give the AI a chance to learn from the game result
+            if game_mode == "PvC" and red_player and hasattr(red_player, 'agent'):
+                print("Red player learning from game result...")
+                red_player.agent.save_model()
+            elif game_mode == "CvP" and blue_player and hasattr(blue_player, 'agent'):
+                print("Blue player learning from game result...")
+                blue_player.agent.save_model()
+            elif game_mode == "CvC":
+                if game.turn == RED and hasattr(red_player, 'agent'):
+                    print("Red player learning from game result...")
+                    red_player.agent.save_model()
+                elif hasattr(blue_player, 'agent'):
+                    print("Blue player learning from game result...")
+                    blue_player.agent.save_model()
+                    
+            # Then reset the game
+            pygame.time.delay(2000)  # Give time to see the winner
             game.game_over = None
             game.reset()
             game.update()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False

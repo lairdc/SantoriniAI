@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from collections import deque
+import os
 
 
 class Bot:
@@ -20,6 +21,7 @@ class Bot:
                 state_size=100,
                 action_size=128
             )
+            self.agent.load_model('santorini_model.pth')
             self.use_dqn = True
         else:
             self.use_dqn = False
@@ -256,48 +258,45 @@ class DQNSantoriniAgent:
         return [(i, j, k) for i in range(2) for j in range(8) for k in range(8)]
 
     def step(self):
+        print(f"AI making move... Epsilon: {self.epsilon:.4f}, Training steps: {self.training_steps}")
         state = self.get_cur_game_state()
         action = self.act(state)
         piece_idx = action // 64
         move_dir = (action % 64) // 8
         build_dir = action % 8
         
-        # Get the selected piece
         own_pieces = self.game.board.get_all_pieces(self.own_color)
         if not own_pieces or piece_idx >= len(own_pieces):
             return
             
         piece = own_pieces[piece_idx]
         
-        # Select the piece
         if not self.game.select(piece.row, piece.col):
             return
             
-        # Calculate new position based on move direction
         new_row = piece.row + [-1, -1, 0, 1, 1, 1, 0, -1][move_dir]
         new_col = piece.col + [0, 1, 1, 1, 0, -1, -1, -1][move_dir]
         
-        # Make the move
         if not self.game._move(new_row, new_col):
             self.game.selected = None
             return
             
-        # Calculate build position
         build_row = new_row + [-1, -1, 0, 1, 1, 1, 0, -1][build_dir]
         build_col = new_col + [0, 1, 1, 1, 0, -1, -1, -1][build_dir]
         
-        # Make the build
         self.game._build(build_row, build_col)
         self.game.selected = None
         
-        # Get reward and next state
         reward = self.evaluate_reward()
         next_state = self.get_cur_game_state()
         done = self.game.winner() is not None
         
-        # Store experience and train
         self.remember(state, action, reward, next_state, done)
         self.replay()
+
+        # Save model if game is over (we have a winner)
+        if done:
+            self.save_model()
 
     def evaluate_reward(self):
         reward = 0
@@ -357,5 +356,45 @@ class DQNSantoriniAgent:
             if distance <= 2:  #workers supporting each other
                 reward += 5
         return reward
+    
+    def save_model(self, filename='santorini_model.pth'):
+        """Save the model, optimizer state, and memory"""
+        try:
+            torch.save({
+                'model_state_dict': self.model.state_dict(),
+                'target_model_state_dict': self.target_model.state_dict(),
+                'optimizer_state_dict': self.optimizer.state_dict(),
+                'epsilon': self.epsilon,
+                'memory': list(self.memory),
+                'training_steps': self.training_steps
+            }, filename)
+            print(f"=== Model Saved Successfully ===")
+            print(f"Saved to: {filename}")
+            print(f"Training steps: {self.training_steps}")
+            print(f"Current epsilon: {self.epsilon:.4f}")
+            print(f"Memory size: {len(self.memory)}\n")
+        except Exception as e:
+            print(f"Error saving model: {e}")
+
+    def load_model(self, filename='santorini_model.pth'):
+        """Load the model if it exists"""
+        if os.path.exists(filename):
+            print(f"\n=== Loading Existing Model ===")
+            try:
+                checkpoint = torch.load(filename)
+                self.model.load_state_dict(checkpoint['model_state_dict'])
+                self.target_model.load_state_dict(checkpoint['target_model_state_dict'])
+                self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                self.epsilon = checkpoint['epsilon']
+                self.memory = deque(checkpoint['memory'], maxlen=2000)
+                self.training_steps = checkpoint['training_steps']
+                print(f"Model loaded successfully!")
+                print(f"Loaded training steps: {self.training_steps}")
+                print(f"Loaded epsilon: {self.epsilon:.4f}")
+                print(f"Loaded memory size: {len(self.memory)}\n")
+            except Exception as e:
+                print(f"Error loading model: {e}\n")
+        else:
+            print("\n=== No existing model found, starting fresh ===\n")
 
 
