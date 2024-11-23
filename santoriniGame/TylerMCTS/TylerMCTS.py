@@ -1,5 +1,3 @@
-
-
 import random
 import math
 from santoriniGame.pieces import Piece
@@ -93,8 +91,6 @@ class TylerMCTS:
 
     def expand(self, node):
         # Create children for each possible move and build
-        if node.children:  # Already expanded
-            return
         pieces = node.board.pieces[self.tuple_to_str(self.own_color)]
         for piece in pieces:
             moves = node.board.get_all_moves(piece)
@@ -103,7 +99,7 @@ class TylerMCTS:
                 child_node = Node(new_board)
                 child_node.move = move
                 node.add_child(child_node)
-                return  # Expand only one child
+
 
     def simulate(self, node):
         # Simulate by playing random moves until the game ends
@@ -173,12 +169,10 @@ class TylerMCTS:
         # Backpropagation
         self.backpropagate(node, result)
 
+    # Prints node information for debugging
     def print_node(self, node, node_level):
-
         print("Node Level: ", node_level, "  ")
         print("RED: ", node.board.pieces['RED'], "  ","BLUE: ", node.board.pieces['BLUE'])
-        print("RED Level: ", node.board.tiles[node.board.pieces['RED'][0]][0], " ", node.board.tiles[node.board.pieces['RED'][0]][0])
-        print("BLUE Level: ", node.board.tiles[node.board.pieces['BLUE'][0]][0], " ", node.board.tiles[node.board.pieces['BLUE'][0]][0])
         print("Wins: ", node.wins)
         print("----------------------------------")
         node_level += 1
@@ -189,34 +183,84 @@ class TylerMCTS:
     def clear_tree(self):
         self.root = Node(self.board_to_dict(self.game.board))
 
+    # Checks if the opponent can move to a given coordinate
+    def opp_can_move(self, board, opp_pieces, action_x, action_y):
+        for piece in opp_pieces:
+            valid_moves = self.game.board.get_valid_moves(piece)
+            for move in valid_moves.keys():
+                if move[0] == action_x and move[1] == action_y:
+                    return True
+        return False
+
+    def get_priority_action(self, board): # Check if there is a winning move or can dome the opponents winning move
+        action = None
+
+        own_pieces = self.game.board.get_all_pieces(self.own_color)
+        opp_pieces = self.game.board.get_all_pieces(self.opp_color)
+
+        for i, piece in enumerate(own_pieces):
+            cur_x, cur_y = piece.get_x(), piece.get_y()
+            valid_moves = self.game.board.get_valid_moves(piece)
+
+            for move in valid_moves:
+                move_x, move_y = move
+                can_win = False
+                if board.get_tile_level(move_x, move_y) == 3:
+                    can_win = True
+
+                # Simulate the piece moving to the new location
+                fake_piece = Piece(move_x, move_y, self.own_color)
+                valid_builds = self.game.board.get_valid_builds(fake_piece)
+
+                # Also consider building on the current position before moving
+                valid_builds[(cur_x, cur_y)] = board.get_tile_level(cur_x, cur_y)
+
+                for build in valid_builds:
+                    build_x, build_y = build
+                    if can_win: # Winning move, build doesn't matter
+                        action = [cur_x, cur_y, move_x, move_y, build_x, build_y]
+                        break
+                    elif self.opp_can_move(board, opp_pieces, build_x, build_y) and board.get_tile_level(build_x, build_y) == 3: # Dome opponent winning move
+                        action = [cur_x, cur_y, move_x, move_y, build_x, build_y]
+        return action
+
     def make_move(self, num_simulations=100):
         self.clear_tree()  # Clear tree
+        action = self.get_priority_action(self.game.board)
+        if action is None: # Run MCTs
+            # Run MCTS simulations
+            for i in range(num_simulations):
+                self.run_simulation()
 
-        # Run MCTS simulations
-        for i in range(num_simulations):
-            self.run_simulation()
+            # No moves
+            if not self.root.children:
+                return
+            # Select the child with the best win rate and highest visit count
+            best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
+            print("Best Child Wins: ", best_child.wins)
+            self.print_node(self.root, 0)
 
-        # No moves
-        if not self.root.children:
-            return
-        # Select the child with the best win rate and highest visit count
-        best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
-        print("Best Child: ")
-        self.print_node(best_child, 0)
+            action = best_child.move
+            if action is None:
+                return
 
-        action = best_child.move
-        if action is None:
-            return
+            # Unpack the move information
+            move_x, move_y = action[1]
+            build_x, build_y = action[2]
 
-        # Unpack the move information
-        move_x, move_y = action[1]
-        build_x, build_y = action[2]
+            # Execute the move on the game board
+            piece_row, piece_col = action[0]  # Starting position of the piece
+            if self.game.select(piece_row, piece_col):  # Select piece
+                self.game._move(move_x, move_y)  # Move piece
+                self.game._build(build_x, build_y)  # Build after move
 
-        # Execute the move on the game board
-        piece_row, piece_col = action[0]  # Starting position of the piece
-        if self.game.select(piece_row, piece_col):  # Select piece
-            self.game._move(move_x, move_y)  # Move piece
-            self.game._build(build_x, build_y)  # Build after move
+        else: # Do priority action
+            piece_row, piece_col = action[0], action[1]
+            move_x, move_y = action[2], action[3]
+            build_x, build_y = action[4], action[5]
+
+            if self.game.select(piece_row, piece_col):  # Select piece
+                self.game._move(move_x, move_y)  # Move piece
+                self.game._build(build_x, build_y)  # Build after move
 
         self.game.selected = None  # Deselect after move and build
-
