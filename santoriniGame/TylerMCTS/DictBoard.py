@@ -34,6 +34,10 @@ class DictBoard:
 	def copy(self):
 		return copy.deepcopy(self)
 
+	def get_tile_level(self, x, y):
+		return self.tiles[(x, y)][0]
+
+
 	def get_moves(self, piece: tuple):
 		moves = []
 		row, col = piece
@@ -49,8 +53,8 @@ class DictBoard:
 			new_row = row + d[0]
 			new_col = col + d[1]
 			if 0 <= new_row <= 4 and 0 <= new_col <= 4:
-				if self.tiles[(new_row,new_col)][0] != 4 and self.tiles[(new_row,new_col)][0] <= self.tiles[(row,col)][0] + 1 and self.tiles[(new_row,new_col)][1] == None:
-					moves.append((new_row,new_col))
+				if self.tiles[(new_row, new_col)][0] != 4 and self.tiles[(new_row, new_col)][0] <= self.tiles[(row, col)][0] + 1 and self.tiles[(new_row,new_col)][1] == None:
+					moves.append((new_row, new_col))
 
 		return moves
 
@@ -94,6 +98,13 @@ class DictBoard:
 				all_moves.append([(starting_row, starting_col), (move_row, move_col), (build_row, build_col)])
 
 		return all_moves
+
+	def opp_move(self, x, y, opp_color):
+		for piece in self.pieces[opp_color]:
+			for move in self.get_moves(piece):
+				if move[0] == x and move[1] == y:
+					return True
+		return False
 
 	def is_game_over(self):
 		# Check if any piece has reached the target tile for either player
