@@ -1,20 +1,22 @@
 import pygame
 
-from board import Board
-from constants import *
-from pieces import Piece
+from santoriniGame.board import Board
+from santoriniGame.constants import *
+from santoriniGame.pieces import Piece
 
 
 
 class Game:
-    def __init__(self, win: pygame.SurfaceType):
+    def __init__(self, win: pygame.SurfaceType, no_render: bool = False):
         self._init()
         self.win = win
         self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
+        self.no_render = no_render
 
     def update(self):
-        self.board.draw(self.win, self.valid_moves)
-        pygame.display.update()
+        if not self.no_render:
+            self.board.draw(self.win, self.valid_moves)
+            pygame.display.update()
 
     def _init(self):
         self.selected: Piece | None = None
@@ -77,6 +79,7 @@ class Game:
         return False
 
     def display_winner(self, winner_color: tuple[int, int, int]):
+        if self.no_render: return winner_color
         self.valid_moves = None
         self.update()
         font = pygame.font.SysFont(None, 72)

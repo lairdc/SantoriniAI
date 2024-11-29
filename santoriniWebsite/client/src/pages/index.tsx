@@ -30,9 +30,11 @@ export default function IndexPage() {
                     </div>
                     
                     <div className="button-container">
-                        <button onClick={() => alert('Playing against a friend')}>
-                            Play Against Friend
+                    <Link to="/game">
+                        <button>
+                        Play Against Friend
                         </button>
+                    </Link>
                         <button onClick={() => alert('Playing against AI')}>
                             Play Against AI
                         </button>

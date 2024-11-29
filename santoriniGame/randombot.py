@@ -1,6 +1,6 @@
 import random
 
-class Bot:
+class RandomBot:
     def __init__(self, game, own_color: tuple[int, int, int], opp_color: tuple[int, int, int]):
         self.game = game  # Reference to the Game object
         self.own_color = own_color  # Bot's color (BLUE or RED)

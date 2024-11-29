@@ -1,6 +1,6 @@
 import random
 import copy
-from constants import *
+from santoriniGame.constants import *
 
 '''
 THOUGHTS:

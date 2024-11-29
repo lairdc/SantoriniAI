@@ -1,6 +1,6 @@
 import pygame
 
-from constants import *
+from santoriniGame.constants import *
 
 from constants import *
 
