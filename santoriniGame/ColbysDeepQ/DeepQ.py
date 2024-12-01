@@ -10,9 +10,9 @@ import torch.nn.functional as F
 5 x 5 x 2 starting board:
 
 	[[[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],
-	 [[0, 0],[0, 1],[0, 0],[0, 1],[0, 0]],
+	 [[0, 0],[1, 0],[0, 0],[1, 0],[0, 0]],
 	 [[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]],
-	 [[0, 0],[0,-1],[0, 0],[0,-1],[0, 0]],
+	 [[0, 0],[-1,0],[0, 0],[-1,0],[0, 0]],
 	 [[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]]]
 
 8 x 8 output:
@@ -53,7 +53,7 @@ class DQNModel(nn.Module):
 
 
 class DeepQ(nn.Module):
-	def __init__(self, input_dim,output_dim, memory_size=2000, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.9995, learning_rate=0.001):
+	def __init__(self, input_dim,output_dim, memory_size=2000, gamma=0.9, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001):
 		super(DeepQ, self).__init__()
 		self.model = DQNModel(input_dim,output_dim)  # Neural network for the Q-function
 		self.target_model = DQNModel(input_dim,output_dim)
@@ -64,14 +64,14 @@ class DeepQ(nn.Module):
 		self.epsilon_min = epsilon_min
 		self.epsilon_decay = epsilon_decay
 		self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)  # Optimizer for training the model
-		self.loss_fn = nn.MSELoss()  # Mean squared error loss for Q-learning
+		self.loss_fn = nn.SmoothL1Loss()
 
 	def remember(self, state, action, reward, next_state, done):
 		"""Store experiences in replay memory."""
 		self.memory.append((state, action, reward, next_state, done))
 
 	def act(self, state):
-		"""Select an action based on epsilon-greedy strategy."""
+		#epsilon greedy strategy is done in Agent.py
 		state = T.tensor(state, dtype=T.float32).unsqueeze(0)
 		q_values = self.model(state)  # Predict Q-values for all actions
 		return T.argmax(q_values).item()  # Choose the action with the highest Q-value
@@ -96,18 +96,35 @@ class DeepQ(nn.Module):
 			next_q_values = self.target_model(next_states).max(1)[0]
 			targets = rewards + self.gamma * next_q_values * (1 - dones)
 
+
+		if random.random() < .05:
+			print(f"Q-values: {q_values.detach().numpy()}, Targets: {targets.numpy()}, Rewards: {rewards.numpy()}")
+
+
 		# Compute loss and update model
 		loss = self.loss_fn(q_values, targets)
 		self.optimizer.zero_grad()
 		loss.backward()
 		self.optimizer.step()
 
+		return loss.item()
+
 	def replay(self, batch_size=32):
-		"""Sample a batch and train on it."""
-		if len(self.memory) < batch_size:
-			return
-		batch = random.sample(self.memory, batch_size)
-		self.train_on_batch(batch)
+	    """Sample a batch, train on it, and log performance metrics."""
+	    if len(self.memory) < batch_size:
+	        return
+
+	    # Sample a batch
+	    batch = random.sample(self.memory, batch_size)
+
+	    # Train on the batch and get the loss
+	    loss = self.train_on_batch(batch)
+
+	    # Log loss and epsilon
+	    return loss
+
+
+
 
 	def update_target_network(self):
 		"""Copy weights from the main model to the target model."""

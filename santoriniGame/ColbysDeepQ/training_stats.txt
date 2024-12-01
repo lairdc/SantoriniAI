@@ -1,0 +1,76 @@
+GameNum,TurnNum,Reward1,Reward2
+Game 50: AvgReward1=-12.32, AvgReward2=18.74, Turns=19
+Game 100: AvgReward1=-10.00, AvgReward2=31.00, Turns=10
+Game 150: AvgReward1=-15.53, AvgReward2=21.18, Turns=17
+Game 200: AvgReward1=18.59, AvgReward2=-13.88, Turns=17
+Game 250: AvgReward1=-2.21, AvgReward2=14.84, Turns=19
+Game 300: AvgReward1=11.05, AvgReward2=-0.84, Turns=19
+Game 350: AvgReward1=1.37, AvgReward2=10.11, Turns=19
+Game 400: AvgReward1=-2.00, AvgReward2=11.38, Turns=16
+Game 450: AvgReward1=-2.59, AvgReward2=20.00, Turns=17
+Game 500: AvgReward1=-12.00, AvgReward2=38.25, Turns=8
+Game 550: AvgReward1=26.33, AvgReward2=-21.50, Turns=12
+Game 600: AvgReward1=-3.07, AvgReward2=22.40, Turns=15
+Game 650: AvgReward1=-13.74, AvgReward2=11.42, Turns=31
+Game 700: AvgReward1=-6.00, AvgReward2=25.85, Turns=13
+Game 750: AvgReward1=-8.43, AvgReward2=6.78, Turns=23
+Game 800: AvgReward1=1.17, AvgReward2=-1.42, Turns=24
+Game 850: AvgReward1=7.88, AvgReward2=-5.06, Turns=34
+Game 900: AvgReward1=7.93, AvgReward2=-1.26, Turns=27
+Game 950: AvgReward1=-3.28, AvgReward2=7.76, Turns=25
+1000,1,0,0
+1000,1,0,0
+1000,2,0,0
+1000,2,0,0
+1000,3,22,0
+1000,3,0,0
+1000,4,2,0
+1000,4,0,0
+1000,5,2,0
+1000,5,0,0
+1000,6,-20,0
+1000,6,0,0
+1000,7,0,0
+1000,7,0,0
+1000,8,22,0
+1000,8,0,0
+1000,9,2,0
+1000,9,0,0
+1000,10,2,0
+1000,10,22,0
+1000,11,24,0
+1000,11,-20,0
+1000,12,4,0
+1000,12,0,0
+1000,13,-18,0
+1000,13,22,0
+1000,14,2,0
+1000,14,-20,0
+1000,15,74,0
+1000,15,-78,0
+1000,16,-40,0
+1000,16,2,0
+1000,17,22,0
+1000,17,24,0
+1000,18,2,0
+1000,18,-18,0
+1000,19,24,0
+1000,19,2,0
+1000,20,-18,0
+1000,20,2,0
+1000,21,24,0
+1000,21,2,0
+1000,22,4,0
+1000,22,24,0
+1000,23,4,0
+1000,23,4,0
+1000,24,-18,0
+1000,24,4,0
+1000,25,2,0
+1000,25,76,0
+1000,26,-98,0
+1000,26,-16,0
+1000,27,74,0
+1000,27,-74,0
+1000,28,100,0
+Game 1000: AvgReward1=7.14, AvgReward2=-1.50, Turns=28
