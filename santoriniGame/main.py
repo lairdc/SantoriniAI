@@ -11,6 +11,7 @@ from santoriniGame.randombot import RandomBot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from ColbysMiniMax.ColbysMiniMax import *
+from TylerMCTS.TylerMCTS import *
 
 
 FPS = 60
@@ -109,14 +110,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = YaseminsMiniMax(game, BLUE, RED)
+        blue_player = TylerMCTS(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        red_player = TylerMCTS(game,RED,BLUE)
     else:
-        blue_player = RandomBot(game, BLUE, RED)
-        red_player = YaseminsMiniMax(game,RED,BLUE)
+        blue_player = Bot(game,BLUE,RED)
+        red_player = TylerMCTS(game,RED,BLUE)
 
 
         num_games = 10
