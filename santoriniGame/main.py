@@ -117,7 +117,7 @@ def main():
         blue_player = None
         red_player = TylerMCTS(game,RED,BLUE)
     else:
-        blue_player = Bot(game,BLUE,RED)
+        blue_player = RandomBot(game,BLUE,RED)
         red_player = TylerMCTS(game,RED,BLUE)
 
 
@@ -163,11 +163,13 @@ def main():
             if game.game_over == 'RED':
                 red_wins += 1
                 winner = 'RED'
-                # red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
+                if isinstance(red_player, YaseminsMCTS):
+                    red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
             else:
                 blue_wins += 1
                 winner = 'BLUE'
-                # red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
+                if isinstance(red_player, YaseminsMCTS):
+                    red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
 
             # Print the winner and time spent
             print(f"Winner: {winner}")
