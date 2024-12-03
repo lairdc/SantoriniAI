@@ -1,8 +1,8 @@
 import '../fonts.css';
 import {Game} from "../game/game.ts";
 import {COLS, ROWS} from "../game/constants.ts";
-import {createContext, ReactElement, useContext, useState, useEffect } from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {createContext, ReactElement, useContext, useState, useEffect, useCallback} from "react";
+import {useBeforeUnload, useNavigate, useParams} from "react-router-dom";
 import "./game.css";
 
 const GameContext = createContext<Game>(new Game());
@@ -71,6 +71,7 @@ export default function GamePage() {
                     const wasMoveState = game.move;
 
                     if (!game.select(row, col)) {
+                        // TODO: only allow building with the last moved piece
                         game.selected = null;
                     }
 
@@ -124,7 +125,7 @@ export default function GamePage() {
     const gridded = spaces.map((row, i) => <div className={"game-row"} key={`row-${i}`}>{row}</div>);
 
     // TODO: call this when a react navigate is used internally too
-    window.addEventListener("beforeunload", async e => {
+    useBeforeUnload(useCallback(async e => {
         if (gameId) {
             await fetch(`http://localhost:8000/game/${gameId}`, {
                 method: "DELETE",
@@ -134,7 +135,7 @@ export default function GamePage() {
             });
             console.log(`Logged game ${gameId} deletion`);
         }
-    });
+    }, [gameId]))
 
     return (
         <div className="game-container">

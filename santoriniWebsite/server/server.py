@@ -5,6 +5,7 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from santoriniGame.TylerMCTS.TylerMCTS import TylerMCTS
 from santoriniGame.ColbysMiniMax.ColbysMiniMax import ColbysMiniMax
 from santoriniGame.TylerMiniMax.TylerMiniMax import TylerMiniMax
 from santoriniGame.YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
@@ -23,10 +24,11 @@ app.add_middleware(
 
 games: dict[UUID, RemoteGame] = {}
 bots = {
-    "colby": ColbysMiniMax,
+    "colbyminimax": ColbysMiniMax,
     "random": RandomBot,
-    "yasemin": YaseminsMiniMax,
-    "tyler": TylerMiniMax
+    "yaseminminimax": YaseminsMiniMax,
+    "tylerminimax": TylerMiniMax,
+    "tylermcts": TylerMCTS
 }
 
 class Move(BaseModel):
