@@ -5,9 +5,10 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from santoriniGame.TylerMCTS.TylerMCTS import TylerMCTS
 from santoriniGame.ColbysMiniMax.ColbysMiniMax import ColbysMiniMax
+from santoriniGame.TylerMCTS.TylerMCTS import TylerMCTS
 from santoriniGame.TylerMiniMax.TylerMiniMax import TylerMiniMax
+from santoriniGame.YaseminsMCTS.YaseminsMCTS import YaseminsMCTS
 from santoriniGame.YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from santoriniGame.constants import RED, BLUE
 from santoriniGame.randombot import RandomBot
@@ -26,9 +27,10 @@ games: dict[UUID, RemoteGame] = {}
 bots = {
     "colbyminimax": ColbysMiniMax,
     "random": RandomBot,
+    "yaseminmcts": YaseminsMCTS,
     "yaseminminimax": YaseminsMiniMax,
-    "tylerminimax": TylerMiniMax,
-    "tylermcts": TylerMCTS
+    "tylermcts": TylerMCTS,
+    "tylerminimax": TylerMiniMax
 }
 
 class Move(BaseModel):
