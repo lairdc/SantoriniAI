@@ -5,13 +5,14 @@ import time  # Import time module
 
 
 
-from constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
-from game import Game
-from bot import Bot
+from santoriniGame.constants import WIDTH, HEIGHT, SQUARE_SIZE, BLUE, RED, GREY, GREEN
+from santoriniGame.game import Game
+from santoriniGame.randombot import RandomBot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
 from YaseminsMCTS.YaseminsMCTS import YaseminsMCTS
 from ColbysMiniMax.ColbysMiniMax import *
+from TylerMCTS.TylerMCTS import *
 
 
 FPS = 60
@@ -110,14 +111,14 @@ def main():
         blue_player = None
         red_player = None
     elif game_mode == "CvP":
-        blue_player = YaseminsMCTS(game, BLUE, RED)
+        blue_player = TylerMCTS(game, BLUE, RED)
         red_player = None
     elif game_mode == "PvC":
         blue_player = None
-        red_player = YaseminsMCTS(game,RED,BLUE)
+        red_player = TylerMCTS(game,RED,BLUE)
     else:
         blue_player = Bot(game,BLUE,RED)
-        red_player = YaseminsMCTS(game,RED,BLUE)
+        red_player = TylerMCTS(game,RED,BLUE)
 
 
         num_games = 10

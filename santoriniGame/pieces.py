@@ -1,7 +1,6 @@
 import pygame
 
-from constants import *
-
+from santoriniGame.constants import *
 
 class Piece:
 	PADDING = 15

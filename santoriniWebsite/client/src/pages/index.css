@@ -1,6 +1,6 @@
 .index-app {
   text-align: center;
-  min-height: 150vh;
+  min-height: 70vh;
 }
 
 .index-app-logo {
@@ -16,12 +16,12 @@
 
 .index-app-header {
   position: relative;
-  background-color: #eac9a4; 
+  background-color: #e3cba9; 
   background-image: url('/clouds.png'); 
   background-size: contain; 
   background-repeat: repeat-x; 
   background-blend-mode: lighten;
-  min-height: 60vh; 
+  min-height: 65vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -92,7 +92,13 @@ h1 {
   height: auto; 
 }
 
+.custom-link{
+  color:#61dafb;
+}
 
+.custom-link:hover{
+  color: #ffffff;
+}
 button {
   padding: 15px 30px; 
   font-size: 30px;      

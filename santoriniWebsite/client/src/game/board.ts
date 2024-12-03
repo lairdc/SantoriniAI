@@ -18,13 +18,6 @@ export class Board {
         this.board.push(new Piece(ROWS - 2, COLS - 2, RED));
     }
 
-    movePiece(piece: Piece, row: number, col: number): void {
-        const newBoard = this.board.filter(p => p !== piece);
-        piece.move(row, col);
-        newBoard.push(piece);
-        this.board = newBoard;
-    }
-
     getPiece(row: number, col: number): Piece | null {
         return this.board.find(piece => piece.row === row && piece.col === col) || null;
     }
@@ -42,7 +35,7 @@ export class Board {
             if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS) {
                 const targetLevel = this.tileLevels[newRow][newCol];
                 if (targetLevel < 4 && (targetLevel - this.tileLevels[piece.row][piece.col] <= 1) && !this.getPiece(newRow, newCol)) {
-                    moves[`${newRow},${newCol}`] = targetLevel;
+                    moves[`${newRow}-${newCol}`] = targetLevel;
                 }
             }
         }
@@ -82,6 +75,7 @@ export class Board {
     getTileLevel(row: number, col: number): number {
         return this.tileLevels[row][col];
     }
+
     move(piece: Piece, row: number, col: number): void {
         const newBoard = this.board.filter(p => p !== piece);
         piece.move(row, col);
