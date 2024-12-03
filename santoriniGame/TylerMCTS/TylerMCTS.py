@@ -223,10 +223,10 @@ class TylerMCTS:
 
     def print_node(self, node, node_level):
         # Prints node information for debugging
-        print("Node Level: ", node_level, "  ")
-        print("RED: ", node.board.pieces['RED'], "  ","BLUE: ", node.board.pieces['BLUE'])
-        print("Wins: ", node.wins)
-        print("----------------------------------")
+        # print("Node Level: ", node_level, "  ")
+        # print("RED: ", node.board.pieces['RED'], "  ","BLUE: ", node.board.pieces['BLUE'])
+        # print("Wins: ", node.wins)
+        # print("----------------------------------")
         node_level += 1
         for child in node.children:
             if child.wins > 0:
@@ -292,7 +292,7 @@ class TylerMCTS:
                 return
             # Select the child with the best win rate and highest visit count
             best_child = max(self.root.children, key=lambda child: (child.wins / child.visits, child.visits))
-            print("Best Child Wins: ", best_child.wins)
+            # print("Best Child Wins: ", best_child.wins)
             self.print_node(self.root, 0)
 
             # action = [(piece_row,piece_col),(move_x,move_y),(build_x,build_y)]
