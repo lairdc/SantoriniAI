@@ -10,6 +10,7 @@ from santoriniGame.game import Game
 from santoriniGame.randombot import RandomBot
 from TylerMiniMax.TylerMiniMax import TylerMiniMax
 from YaseminsMiniMax.YaseminsMiniMax import YaseminsMiniMax
+from YaseminsMCTS.YaseminsMCTS import YaseminsMCTS
 from ColbysMiniMax.ColbysMiniMax import *
 from TylerMCTS.TylerMCTS import *
 
@@ -162,9 +163,11 @@ def main():
             if game.game_over == 'RED':
                 red_wins += 1
                 winner = 'RED'
+                # red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
             else:
                 blue_wins += 1
                 winner = 'BLUE'
+                # red_player.analyse_game() # Saves game data for Yasemins MCTS, comment out for other bots
 
             # Print the winner and time spent
             print(f"Winner: {winner}")
