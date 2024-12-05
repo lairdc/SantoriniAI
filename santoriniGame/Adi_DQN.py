@@ -18,7 +18,7 @@ class Bot:
                 game=game,
                 own_color=own_color,
                 opp_color=opp_color,
-                state_size=100,
+                state_size=118,
                 action_size=128
             )
             self.agent.load_model('santorini_model.pth')
@@ -77,7 +77,7 @@ class Bot:
 #4.	Q-Learning with neural network: update Q-values using a neural network
 
 class DQNSantoriniAgent:
-    def __init__(self, game, own_color, opp_color, state_size=100, action_size=50, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001, batch_size=32):
+    def __init__(self, game, own_color, opp_color, state_size=118, action_size=50, gamma=0.95, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, learning_rate=0.001, batch_size=32):
         self.game = game
         self.own_color = own_color
         self.opp_color = opp_color
@@ -141,7 +141,7 @@ class DQNSantoriniAgent:
         if len(self.memory) < self.batch_size:
             return
         
-        # Enhanced batch processing
+        #batch processing
         minibatch = random.sample(self.memory, self.batch_size)
         states = torch.FloatTensor([data[0] for data in minibatch]).to(self.device)
         actions = torch.LongTensor([data[1] for data in minibatch]).to(self.device)
@@ -157,11 +157,11 @@ class DQNSantoriniAgent:
         loss = self.loss_fn(current_q_values.squeeze(), target_q_values)
         self.optimizer.zero_grad()
         loss.backward()
-        # Added gradient clipping
+        # gradient clipping
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
         self.optimizer.step()
 
-        # Added periodic target update
+        #periodic target update
         self.training_steps += 1
         if self.training_steps % self.update_target_frequency == 0:
             self.update_target_model()
@@ -398,3 +398,28 @@ class DQNSantoriniAgent:
             print("\n=== No existing model found, starting fresh ===\n")
 
 
+from game import Game
+
+def train_dqn_bot(num_episodes=1000):
+    game = Game(win=None)
+    bot = Bot(game, own_color=(255, 0, 0), opp_color=(0, 0, 255), use_dqn=True)
+    opponent = Bot(game, own_color=(0, 0, 255), opp_color=(255, 0, 0), use_dqn=False)
+    
+    for episode in range(num_episodes):
+        game.reset()  #reset game state
+        done = False
+        while not done:
+            #DQN bot move
+            bot.make_move()
+            if game.winner() is not None:
+                done = True
+                continue
+                
+            opponent.make_move()
+            if game.winner() is not None:
+                done = True
+                
+        print(f"Episode {episode+1}/{num_episodes} completed")
+
+if __name__ == "__main__":
+    train_dqn_bot()
