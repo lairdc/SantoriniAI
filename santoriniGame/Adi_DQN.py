@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import deque
 import os
+import pygame
 
 
 class Bot:
@@ -195,7 +196,7 @@ class DQNSantoriniAgent:
         board = self.game.board
         own_pieces = board.get_all_pieces(self.own_color)
         for piece in own_pieces:
-            row, col = piece.position
+            row, col = piece.row, piece.col
             level = board.get_tile_level(row, col)
             adjacent_levels = []
             for dr, dc in [(0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
@@ -212,7 +213,7 @@ class DQNSantoriniAgent:
         center_row, center_col = 2, 2
         own_pieces = board.get_all_pieces(self.own_color)
         for piece in own_pieces:
-            row, col = piece.position
+            row, col = piece.row, piece.col
             distance = abs(row - center_row) + abs(col - center_col)
             distances.append(distance)
         return distances
@@ -221,7 +222,7 @@ class DQNSantoriniAgent:
         valid_actions = []
         pieces = self.game.board.get_all_pieces(self.own_color)
         for piece_idx, piece in enumerate(pieces):
-            row, col = piece.position
+            row, col = piece.row, piece.col
             for move_dir in range(8):
                 new_row, new_col = self.get_new_position(row, col, move_dir)
                 if self.is_valid_move(new_row, new_col):
@@ -280,16 +281,18 @@ class DQNSantoriniAgent:
         if not self.game._move(new_row, new_col):
             self.game.selected = None
             return
-            
+        
         build_row = new_row + [-1, -1, 0, 1, 1, 1, 0, -1][build_dir]
         build_col = new_col + [0, 1, 1, 1, 0, -1, -1, -1][build_dir]
+        if 0 <= build_row < 5 and 0 <= build_col < 5:
+            self.game._build(build_row, build_col)
         
-        self.game._build(build_row, build_col)
+        #self.game._build(build_row, build_col)
         self.game.selected = None
         
         reward = self.evaluate_reward()
         next_state = self.get_cur_game_state()
-        done = self.game.winner() is not None
+        done = self.game.game_over is not None
         
         self.remember(state, action, reward, next_state, done)
         self.replay()
@@ -301,15 +304,15 @@ class DQNSantoriniAgent:
     def evaluate_reward(self):
         reward = 0
         # Win/Loss zrewards
-        if self.game.winner() == self.own_color:
+        if self.game.game_over == self.own_color:
             return 100  #immediate win is best reward
-        elif self.game.winner() == self.opp_color:
+        elif self.game.game_over == self.opp_color:
             return -100  #immediate loss is worst reward
         board = self.game.board
         own_pieces = board.get_all_pieces(self.own_color)
         opp_pieces = board.get_all_pieces(self.opp_color)
         for piece in own_pieces:
-            row, col = piece.position
+            row, col = piece.row, piece.col
             current_level = board.get_tile_level(row, col)
             reward += current_level * 5  # More points for being higher
             #extra reward for being on level 2 (one move away from winning)
@@ -324,7 +327,7 @@ class DQNSantoriniAgent:
                             reward += 15
         #penalize for opponent's good positions
         for piece in opp_pieces:
-            row, col = piece.position
+            row, col = piece.row, piece.col
             opp_level = board.get_tile_level(row, col)  
             #penalize for opponent height
             reward -= opp_level * 3
@@ -350,8 +353,8 @@ class DQNSantoriniAgent:
         reward += center_control * 2  #reward for controlling center
         #reeward for keeping workers close to each other
         if len(own_pieces) == 2:
-            p1_row, p1_col = own_pieces[0].position
-            p2_row, p2_col = own_pieces[1].position
+            p1_row, p1_col = own_pieces[0].row, own_pieces[0].col
+            p2_row, p2_col = own_pieces[1].row, own_pieces[0].col
             distance = abs(p1_row - p2_row) + abs(p1_col - p2_col)
             if distance <= 2:  #workers supporting each other
                 reward += 5
@@ -401,24 +404,23 @@ class DQNSantoriniAgent:
 from game import Game
 
 def train_dqn_bot(num_episodes=1000):
-    game = Game(win=None)
+    pygame.init()  # Initialize pygame
+    win = pygame.Surface((800, 800))  # Create a dummy surface
+    game = Game(win)
     bot = Bot(game, own_color=(255, 0, 0), opp_color=(0, 0, 255), use_dqn=True)
     opponent = Bot(game, own_color=(0, 0, 255), opp_color=(255, 0, 0), use_dqn=False)
     
     for episode in range(num_episodes):
-        game.reset()  #reset game state
+        game.reset()
         done = False
         while not done:
-            #DQN bot move
             bot.make_move()
-            if game.winner() is not None:
+            if game.game_over is not None:
                 done = True
                 continue
-                
             opponent.make_move()
-            if game.winner() is not None:
+            if game.game_over is not None:
                 done = True
-                
         print(f"Episode {episode+1}/{num_episodes} completed")
 
 if __name__ == "__main__":
