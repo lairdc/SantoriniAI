@@ -23,7 +23,7 @@ class YaseminsMCTS:
         pos, move, build = play
 
         # Debug output
-        #print(f"Received {play})")
+        print(f"Received {play})")
 
         # Select piece
         piece = None
@@ -143,7 +143,6 @@ class YaseminsMCTS:
 
     # Call this function to save the game data into MCTS search tree
     def analyse_game(self):
-        
         pieces = self.game.board.get_all_pieces(self.own_color) + self.game.board.get_all_pieces(self.opp_color)
         tile_levels = self.game.board.tile_levels
         winner = None
@@ -162,3 +161,7 @@ class YaseminsMCTS:
             #print(f"{win}")
 
         self.mcts.save_tree()
+
+    # Call this function to reset bot position after a game is played
+    def reset_tree(self):
+        self.mcts.reset()

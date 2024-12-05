@@ -13,6 +13,9 @@ class SearchTree:
     def get_current(self):
         return self.current
 
+    def reset(self):
+        self.current = self.root
+
     def save_tree(self, filename='search_tree.pkl'):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         full_path = os.path.join(base_dir, filename)
@@ -25,6 +28,7 @@ class SearchTree:
         try:
             with open(full_path, 'rb') as file:
                 self.root = pickle.load(file)
+                self.current = self.root
         except FileNotFoundError:
             # Load an empty tree if no saved data exists
             self.root = TreeNode()
@@ -44,9 +48,9 @@ class TreeNode:
 
     def get_child(self, play):
         for child in self.children:
+            #print(f"{child.play} ")
             if child.play == play:
                 return child
-
         return None
 
     def ucb1(self, exploration_param=1.41):
