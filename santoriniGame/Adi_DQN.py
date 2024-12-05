@@ -195,16 +195,23 @@ class DQNSantoriniAgent:
         differences = []
         board = self.game.board
         own_pieces = board.get_all_pieces(self.own_color)
+        
+        max_differences = 16
+        
         for piece in own_pieces:
             row, col = piece.row, piece.col
             level = board.get_tile_level(row, col)
-            adjacent_levels = []
             for dr, dc in [(0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)]:
                 new_row, new_col = row + dr, col + dc
                 if 0 <= new_row < 5 and 0 <= new_col < 5:
-                    adjacent_levels.append(board.get_tile_level(new_row, new_col))
-            differences.extend([level - adj for adj in adjacent_levels])
-        return differences
+                    differences.append(level - board.get_tile_level(new_row, new_col))
+                else:
+                    differences.append(0)  #padwith 0 for invalid positions
+                    
+        while len(differences) < max_differences:
+            differences.append(0)
+            
+        return differences[:max_differences]  # fixed length
     
     #helper
     def calculate_distances_to_center(self):
@@ -271,7 +278,6 @@ class DQNSantoriniAgent:
             return
             
         piece = own_pieces[piece_idx]
-        
         if not self.game.select(piece.row, piece.col):
             return
             
@@ -287,7 +293,6 @@ class DQNSantoriniAgent:
         if 0 <= build_row < 5 and 0 <= build_col < 5:
             self.game._build(build_row, build_col)
         
-        #self.game._build(build_row, build_col)
         self.game.selected = None
         
         reward = self.evaluate_reward()
@@ -295,9 +300,9 @@ class DQNSantoriniAgent:
         done = self.game.game_over is not None
         
         self.remember(state, action, reward, next_state, done)
+        print(f"Memory size: {len(self.memory)}/{self.batch_size}")
         self.replay()
 
-        # Save model if game is over (we have a winner)
         if done:
             self.save_model()
 
@@ -405,6 +410,7 @@ from game import Game
 
 def train_dqn_bot(num_episodes=1000):
     pygame.init()  # Initialize pygame
+    pygame.display.set_mode((800, 800))
     win = pygame.Surface((800, 800))  # Create a dummy surface
     game = Game(win)
     bot = Bot(game, own_color=(255, 0, 0), opp_color=(0, 0, 255), use_dqn=True)

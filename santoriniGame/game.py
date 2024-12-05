@@ -11,7 +11,13 @@ class Game:
         self.win = win
         self.game_over = None  # Start with None, to be set as 'BLUE' or 'RED' on win
 
+    # def update(self):
+    #     self.board.draw(self.win, self.valid_moves)
+    #     pygame.display.update()
+
     def update(self):
+        if self.win is None:  # Skip if running headless
+            return
         self.board.draw(self.win, self.valid_moves)
         pygame.display.update()
 
@@ -77,14 +83,16 @@ class Game:
 
     def display_winner(self, winner_color: tuple[int, int, int]):
         self.valid_moves = None
+        if self.win is None:  # Skip if running headless
+            return
         self.update()
         font = pygame.font.SysFont(None, 72)
         win_text = f"{'Blue' if winner_color == BLUE else 'Red'} Wins!"
-        text = font.render(win_text, True, (255, 255, 255))  # White text
+        text = font.render(win_text, True, (255, 255, 255))
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.win.blit(text, text_rect)
         pygame.display.update()
-        pygame.time.delay(5000)  # Display the message for 3 seconds
+        pygame.time.delay(5000)
 
     def change_turn(self):
         self.turn = RED if self.turn == BLUE else BLUE
