@@ -35,9 +35,11 @@ export default function IndexPage() {
                         Play Against Friend
                         </button>
                     </Link>
-                        <button onClick={() => alert('Playing against AI')}>
+                    <Link to="/gameselection">
+                        <button >
                             Play Against AI
                         </button>
+                        </Link>
                     </div>
                 </div>
                 <div className="game-overview-img">

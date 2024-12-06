@@ -74,9 +74,9 @@ export default function GameSelectionPage() {
                             border: "1px solid #ddd",
                             borderRadius: "4px",
                             padding: "20px",
-                            backgroundColor: "#fff"
+                            backgroundColor: "#35517d"
                         }}>
-                            <h2 style={{fontSize: "20px", marginBottom: "10px"}}>
+                            <h2 style={{fontSize: "20px", marginBottom: "10px", color: "white" }}>
                                 {bot}
                             </h2>
                             <button
@@ -85,8 +85,8 @@ export default function GameSelectionPage() {
                                 style={{
                                     width: "100%",
                                     padding: "10px",
-                                    backgroundColor: "#007bff",
-                                    color: "white",
+                                    backgroundColor: "#db8953",
+                                    color: "black",
                                     border: "none",
                                     borderRadius: "4px",
                                     cursor: creatingGame ? "not-allowed" : "pointer",
@@ -103,9 +103,9 @@ export default function GameSelectionPage() {
                     border: "1px solid #ddd",
                     borderRadius: "4px",
                     padding: "20px",
-                    backgroundColor: "#fff"
+                    backgroundColor: "#35517d"
                 }}>
-                    <h2 style={{fontSize: "20px", marginBottom: "10px"}}>
+                    <h2 style={{fontSize: "20px", marginBottom: "10px", color: "white"}}>
                         Play Locally
                     </h2>
                     <button
@@ -114,8 +114,8 @@ export default function GameSelectionPage() {
                         style={{
                             width: "100%",
                             padding: "10px",
-                            backgroundColor: "#007bff",
-                            color: "white",
+                            backgroundColor: "#db8953",
+                            color: "black",
                             border: "none",
                             borderRadius: "4px",
                             cursor: creatingGame ? "not-allowed" : "pointer",
