@@ -143,16 +143,29 @@ class YaseminsMCTS:
 
     # Call this function to save the game data into MCTS search tree
     def analyse_game(self):
-        pieces = self.game.board.get_all_pieces(self.own_color) + self.game.board.get_all_pieces(self.opp_color)
+        own_pieces = self.game.board.get_all_pieces(self.own_color)
+        opp_pieces = self.game.board.get_all_pieces(self.opp_color)
+        pieces = own_pieces + opp_pieces
         tile_levels = self.game.board.tile_levels
         winner = None
 
+        # Check for winning pieces
         for piece in pieces:
-            piece_level = tile_levels[piece.row][piece.col]
+            piece_level = tile_levels[piece.row][piece.col]            
             if piece_level == 3:
                 winner = piece
                 break
         
+        # Check if player lost by having no remaining plays
+        own_plays = self.get_valid_plays(own_pieces[0]) + self.get_valid_plays(own_pieces[1])
+        if not own_plays:
+            # Pick any piece from opposing team as "winner"
+            winner = opp_pieces[0]
+        opp_plays = self.get_valid_plays(opp_pieces[0]) + self.get_valid_plays(opp_pieces[1])
+        if not opp_plays:
+            # Pick any pieces from own team as "winner"
+            winner = own_pieces[0]
+
         # Backpropogate if game over
         if winner is not None:
             win = winner.color == self.own_color   # Whether bot won or not
