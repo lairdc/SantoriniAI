@@ -1,6 +1,4 @@
-import random
-import math
-from .SearchTree import *
+from santoriniGame.YaseminsMCTS.SearchTree import *
 
 class YaseminsMCTS:
     def __init__(self, game, own_color, opp_color):
